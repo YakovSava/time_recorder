@@ -14,3 +14,8 @@ class Getter:
         self._filename = 'test.csv'
         self._database_filename = 'table_raw.csv'
 
+    def _load(self) -> list[list[str, int]]:
+        with open(self._filename, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+        return list(map(lambda x: x.split(';'), lines))
+
