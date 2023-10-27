@@ -19,3 +19,12 @@ class Getter:
             lines = file.readlines()
         return list(map(lambda x: x.split(';'), lines))
 
+    def _parse_site(self) -> str:
+        return ""
+
+    def parse_sessions(self) -> list[list[str, int]]:
+        if self._file_mode:
+            return self._load()
+        else:
+            return self._parse_site()
+
