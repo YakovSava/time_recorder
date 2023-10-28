@@ -28,3 +28,6 @@ class Getter:
         else:
             return self._parse_site()
 
+    def reload(self) -> list[list[str, int]]:
+        pass
+
