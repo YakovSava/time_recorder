@@ -31,3 +31,10 @@ class Getter:
     def reload(self) -> list[list[str, int]]:
         pass
 
+    def save(self, data:list[list[str, int]]) -> None:
+        with open(self._database_filename, 'w', encoding='utf-8') as file:
+            to_write = ''
+            for mac, seconds in data:
+                to_write += f'{mac};{seconds}\n'
+            file.write(to_write)
+
