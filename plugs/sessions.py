@@ -38,3 +38,7 @@ class Getter:
                 to_write += f'{mac};{seconds}\n'
             file.write(to_write)
 
+    def get_db(self) -> list[list[str, int]]:
+        with open(self._database_filename, 'r', encoding='utf-8') as file:
+            lines = map(lambda x: [x[0], eval(x[1])], map(lambda x: x.split(';'), file.readlines()))
+        return list(lines)
