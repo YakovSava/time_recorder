@@ -26,10 +26,24 @@ class Getter:
         if self._file_mode:
             return self._load()
         else:
-            return self._parse_site()
+            raise NotImplemented
+
+    def _update(self, a:list[list[str, int]], b:list[list[str, int]]):
+        for item_b in b:
+            found = False
+            for i, item_a in enumerate(a):
+                if item_b[0] == item_a[0]:
+                    a[i][1] = item_b[1]
+                    found = True
+                    break
+            if not found:
+                a.append(item_b)
+        return a
 
     def reload(self) -> list[list[str, int]]:
-        pass
+        updates = self._update(self.get_db(), self.parse_sessions())
+        self.save(updates)
+        return updates
 
     def save(self, data:list[list[str, int]]) -> None:
         with open(self._database_filename, 'w', encoding='utf-8') as file:
