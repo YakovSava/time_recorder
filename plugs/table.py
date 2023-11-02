@@ -7,12 +7,13 @@ class Book:
         self._sheet = self._book.active
         self._filename = filename
 
-    def save_xlsx(self, data:list[list[str, int]]) -> str:
+    def save_xlsx(self, data:dict) -> str:
         self._sheet['A1'] = 'mac-адрес'
         self._sheet['B1'] = 'время использования (секунд)'
         for num, item in enumerate(data, start=2):
-            self._sheet[f'A{num}'] = item[0]
-            self._sheet[f'B{num}'] = item[1]
+            self._sheet[f'A{num}'] = ...
+            self._sheet[f'B{num}'] = ...
+        self.save()
 
         return self._filename
 
