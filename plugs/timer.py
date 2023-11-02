@@ -28,8 +28,9 @@ class Timer:
             th.start()
 
     def _restart(self) -> None:
-        for th in self._queue_thread:
-            th.terminate()
+        self._stop()
+
+        self._start()
 
     def start_job(self) -> bool:
         if all(map(callable, self._queue.copy())):
@@ -37,3 +38,30 @@ class Timer:
             pr.start()
             return True
         return False
+
+    def coro(self, func:Callable, *args, **kwargs) -> Callable:
+        def _coro():
+            return func(*args, **kwargs)
+        return _coro
+
+    def coro_wrapper(self, func:Callable) -> Callable:
+        def wrapper(*args, **kwargs):
+            def _coro():
+                return func(*args, **kwargs)
+            return _coro
+        return wrapper
+
+    def restart(self) -> bool:
+        if all(map(callable, self._queue.copy())):
+            pr = Process(target=self._restart())
+            pr.start()
+            return True
+        return False
+
+    def _stop(self):
+        for th in self._queue_thread:
+            th.terminate()
+        self._queue_thread.clear()
+
+    def __del__(self):
+        self._stop()
