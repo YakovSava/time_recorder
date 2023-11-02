@@ -14,4 +14,8 @@ class Timer:
             raise Exception("Function is not callable")
         self._queue.append(func)
         
-    
+    def remove_from_queue(self, index:int=None) -> None:
+        if index is None:
+            raise ValueError
+        del self._queue[index]
+        
