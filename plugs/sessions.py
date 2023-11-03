@@ -8,7 +8,26 @@ class Getter:
         self._filename = filename
         self._test_filename = 'test_files/test_log.txt'
 
-    def _parse_lines(self) -> dict:
+    def parse_string(self, string:str) -> dict:
+        data = {}
+        for line in string.splitlines():
+            splitted_line = line.split()
+            mac = splitted_line[-1][-1:]
+            time = strptime(" ".join(splitted_line[1:4]) + strftime(' %Y'), "%H:%M %d.%m.%y")
+
+            if data.get(mac) is None:
+                data[mac] = {
+                    'discovers': [],
+                    'connects': []
+                }
+
+            if "DHCPREQUEST" in line:
+                data[mac]['connects'].append(time)
+            elif "DHCPDISCOVER" in line:
+                data[mac]['discovers'].append(time)
+        return data
+
+    def parse_file(self) -> dict:
         '''
         Test dictionary:
         {
@@ -79,5 +98,5 @@ class Getter:
         '''
         to_ret = {}
         for mac, data in parsed_log.items():
-            to_ret[mac] = self._calculate_connected_time
+            to_ret[mac] = self._calculate_connected_time(data)
         return to_ret
