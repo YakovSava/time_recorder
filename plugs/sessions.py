@@ -12,13 +12,8 @@ class Getter:
         Test dictionary:
         {
             'mac': {
-                'discovers': 5,
-                'connects': 5,
-                'times': {
-                    '01.01': 12, // hours
-                    '02.01': 11,
-                    '05.01': 5
-                }
+                'discovers': {},
+                'connects': {}
             }
         }
         '''
@@ -32,13 +27,12 @@ class Getter:
 
             if data.get(mac) is None:
                 data[mac] = {
-                    'discovers': 0,
-                    'connects': 0,
-                    'times': {}
+                    'discovers': {},
+                    'connects': {}
                 }
 
             if ('DHCPDISCOVER' in line):
-                data[mac]['discovers'] += 1
-                data[mac]['times'][strftime('%d-%m-%y', time)]
+                data[mac]['discovers'][strftime("%d-%m%y", time)] = mktime(time)
             elif ('DHCPREQUEST' in line):
-                ...
+                data[mac]['connects'][strftime("%d-%m%y", time)] = mktime(time)
+        return data
