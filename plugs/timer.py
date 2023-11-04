@@ -27,12 +27,11 @@ class Timer:
 
     def _restart(self) -> None:
         self._stop()
-
         self._start()
 
     def start_job(self) -> bool:
         if all(map(callable, self._queue.copy())):
-            pr = Process(target=self._start())
+            pr = Process(target=self._start)
             pr.start()
             return True
         return False

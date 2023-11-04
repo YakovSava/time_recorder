@@ -27,11 +27,14 @@ class Book:
         dates = self._sort_date(self._get_all_dates(data))
         for i, date in enumerate(dates):
             self._sheet[f'{excel_alphabet[i+1]}1'] = date
+        # print(data)
         for i, mac in enumerate(data.keys(), start=1):
-            self._sheet[f'A{i}'] = mac
+            self._sheet[f'A{i+1}'] = mac
             for j, dates_data in enumerate(data.values(), start=2):
-                try: self._sheet[f'{excel_alphabet[i]}{j}'] = data[mac][date[j]]
-                except: self._sheet[f'{excel_alphabet[i]}{j}'] = 0
+                try:
+                    self._sheet[f'{excel_alphabet[i]}{j}'] = data[mac][dates_data[j]]
+                except:
+                    self._sheet[f'{excel_alphabet[i]}{j}'] = 0
         self.save()
 
         return self._filename

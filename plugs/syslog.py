@@ -28,7 +28,7 @@ class SimpleSyslogServer:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         server_socket.bind((self._ip, self._port))
         while True:
-            data, address = server_socket.recvfrom(4096)  # Получаем данные из сокета
+            data, address = server_socket.recvfrom(4096)
             message = data.decode('utf-8')
             self._event_log.append(message)
 
@@ -43,6 +43,7 @@ class SimpleSyslogServer:
         for item in self._event_log:
             yield item
         self._clear_event_log()
+        return
 
     def _listen_to_file(self) -> None:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
