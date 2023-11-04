@@ -51,6 +51,8 @@ class Getter:
         with open(self._test_filename if self._tested else self._filename, 'r', encoding='utf-8') as file:
             lines = file.readlines()
         for line in lines:
+            if line.startswith('<14>'):
+                line = line[4:]
             splitted_line = line.split()
             mac = splitted_line[-1][:-1]
             if not self._is_mac_address(mac):
@@ -66,6 +68,11 @@ class Getter:
             if "DHCPREQUEST" in line:
                 data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
             elif "DHCPDISCOVER" in line:
+                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+            elif "deauthenticated" in line:
+                mac = line.split()[7][4:-1]
+                if not self._is_mac_address(mac):
+                    continue
                 data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
             else:
                 continue
@@ -99,7 +106,7 @@ class Getter:
     def _transform_into_human_form(self, data:dict) -> dict:
         new_data = {}
         for key, data in data.items():
-            new_data[strftime('%d.%m.%y', gmtime(datetime.combine(key, dtime()).timestamp()))] = abs(data.total_seconds() / 3600)
+            new_data[strftime('%d.%m.%y', gmtime(datetime.combine(key, dtime()).timestamp()))] = abs(round(data.total_seconds() / 3600, 2))
         return new_data
 
     def calculate_times(self, parsed_log:dict) -> dict:
