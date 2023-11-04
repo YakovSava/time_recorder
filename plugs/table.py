@@ -1,4 +1,9 @@
+from time import strptime, mktime
 from openpyxl import Workbook
+
+excel_alphabet = [chr(i) for i in range(65, 91)]
+for it in [[chr(j)+chr(i) for i in range(65, 91)] for j in range(65, 91)]:
+    excel_alphabet.extend(it)
 
 class Book:
 
@@ -7,12 +12,26 @@ class Book:
         self._sheet = self._book.active
         self._filename = filename
 
+    def _sort_date(self, dates:list[str]) -> list[str]:
+        return sorted(dates, key=lambda x: mktime(strptime(x, "%d.%m.%y")))
+
+    def _get_all_dates(self, data:dict) -> list[str]:
+        dates = []
+        for value in data.values():
+            for date in value.keys():
+                dates.append(date)
+        return dates
+
     def save_xlsx(self, data:dict) -> str:
         self._sheet['A1'] = 'mac-адрес'
-        self._sheet['B1'] = 'время использования (секунд)'
-        for num, item in enumerate(data, start=2):
-            self._sheet[f'A{num}'] = ...
-            self._sheet[f'B{num}'] = ...
+        dates = self._sort_date(self._get_all_dates(data))
+        for i, date in enumerate(dates):
+            self._sheet[f'{excel_alphabet[i+1]}1'] = date
+        for i, mac in enumerate(data.keys(), start=1):
+            self._sheet[f'A{i}'] = mac
+            for j, dates_data in enumerate(data.values(), start=2):
+                try: self._sheet[f'{excel_alphabet[i]}{j}'] = data[mac][date[j]]
+                except: self._sheet[f'{excel_alphabet[i]}{j}'] = 0
         self.save()
 
         return self._filename
