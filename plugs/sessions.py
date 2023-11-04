@@ -11,7 +11,7 @@ class Getter:
         self._filename = filename
         self._test_filename = 'test_files/test_log.txt'
 
-        if self._test_filename if self._tested else self._filename:
+        if not exists(self._test_filename if self._tested else self._filename):
             with open(self._test_filename if self._tested else self._filename, 'w', encoding='utf-8') as file:
                 file.write('')
 
