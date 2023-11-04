@@ -69,7 +69,7 @@ def check_timer():
         return 'Test pass'
 
 if __name__ == '__main__':
-    # print(check_book())
-    # print(check_filesyslog())
+    print(check_book())
+    print(check_filesyslog())
     print(check_gdrive())
-    # print(check_timer())
+    print(check_timer())
