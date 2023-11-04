@@ -1,3 +1,4 @@
+from time import sleep
 from multiprocessing import Process
 from typing import Callable
 
@@ -50,7 +51,7 @@ class Timer:
 
     def restart(self) -> bool:
         if all(map(callable, self._queue.copy())):
-            pr = Process(target=self._restart())
+            pr = Process(target=self._restart)
             pr.start()
             return True
         return False
@@ -59,6 +60,9 @@ class Timer:
         for th in self._queue_thread:
             th.terminate()
         self._queue_thread.clear()
+
+    def wait(self) -> None:
+        sleep(self._gap)
 
     def __del__(self):
         self._stop()
