@@ -13,7 +13,7 @@ def func(*args, **kwargs):
 def check_book():
     try:
         book = Book(filename='tables/test.xlsx')
-        get = Getter(filename='test_files/log (1).txt', tested=False)
+        get = Getter(filename='test_files/test_log.txt', tested=False)
 
         parsed_ln = get.parse_file()
         calculated_info = get.calculate_times(parsed_ln)
@@ -70,6 +70,6 @@ def check_timer():
 
 if __name__ == '__main__':
     print(check_book())
-    print(check_filesyslog())
-    print(check_gdrive())
-    print(check_timer())
+    # print(check_filesyslog())
+    # print(check_gdrive())
+    # print(check_timer())

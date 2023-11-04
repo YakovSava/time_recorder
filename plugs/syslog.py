@@ -1,7 +1,5 @@
 import socket
 
-from threading import Thread
-
 def write(filename, msg):
     with open(filename, 'a', encoding='utf-8') as file:
         file.write(msg+'\n')
@@ -14,7 +12,6 @@ class SimpleSyslogServer:
         self._ip = ip
         self._port = 514
         self._filename = filename
-        self._main_thread = []
 
     def test_listen(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -24,22 +21,11 @@ class SimpleSyslogServer:
             message = data.decode('utf-8')
             print(message)
 
-    def _listen(self) -> None:
+    def start(self) -> None:
+        print("Listem SYSLOG server!")
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         server_socket.bind((self._ip, self._port))
         while True:
             data, address = server_socket.recvfrom(4096)
             message = data.decode('utf-8')
             write(self._filename, message)
-
-    def start(self) -> None:
-        # self._main_thread.append(Thread(target=self._listen))
-        # self._main_thread[0].start()
-        self._listen()
-
-    def __del__(self):
-        try:
-            del self._main_thread[0]
-            del self._main_thread
-        except:
-            pass
