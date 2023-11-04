@@ -99,7 +99,7 @@ class Getter:
     def _transform_into_human_form(self, data:dict) -> dict:
         new_data = {}
         for key, data in data.items():
-            new_data[strftime('%d.%m.%y', gmtime(datetime.combine(key, dtime()).timestamp()))] = data.total_seconds() / 3600
+            new_data[strftime('%d.%m.%y', gmtime(datetime.combine(key, dtime()).timestamp()))] = abs(data.total_seconds() / 3600)
         return new_data
 
     def calculate_times(self, parsed_log:dict) -> dict:

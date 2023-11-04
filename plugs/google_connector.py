@@ -10,11 +10,6 @@ class GDrive:
         self._drive = GoogleDrive(gauth)
 
     def send_exc_file(self, filename:str="table.xlsx") -> bool:
-        try:
-            file = self._drive.CreateFile({'title': filename})
-            file.SetContentFile(filename)
-            file.Upload()
-        except:
-            return False
-        else:
-            return True
+        file = self._drive.CreateFile({'title': filename})
+        file.SetContentFile(filename)
+        file.Upload()
