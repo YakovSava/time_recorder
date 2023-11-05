@@ -1,10 +1,12 @@
+from time import sleep
+from threading import Thread
 from plugs import Converter, Book, Getter,\
-    Timer, SimpleSyslogServer, GDrive
+    SimpleSyslogServer, GDrive
 
 convert = Converter()
 config = convert.load_conf()
 
-timer = Timer(gap=60*60*2)
+# timer = Timer(gap=60*60*24)
 syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
 gdr = GDrive()
 exc = Book(filename=config['excel_file'])
@@ -23,9 +25,11 @@ def load_every_day() -> None:
         filename = exc.save_xlsx(calculated_info)
         gdr.send_exc_file(filename=filename)
 
-        timer.wait()
+        # timer.wait()
+        sleep(60*60*24)
 
 if __name__ == '__main__':
-    timer.add_to_queue(syslog.start)
-    timer.add_to_queue(load_every_day)
-    timer.start_job()
+    pr = Thread(target=syslog.start)
+    pr.start()
+    pr = Thread(target=load_every_day)
+    pr.start()
