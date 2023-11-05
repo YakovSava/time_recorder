@@ -32,8 +32,7 @@ class Timer:
 
     def start_job(self) -> bool:
         if all(map(callable, self._queue.copy())):
-            pr = Process(target=self._start)
-            pr.start()
+            self._start()
             return True
         return False
 
@@ -51,8 +50,7 @@ class Timer:
 
     def restart(self) -> bool:
         if all(map(callable, self._queue.copy())):
-            pr = Process(target=self._restart)
-            pr.start()
+            self._start()
             return True
         return False
 
