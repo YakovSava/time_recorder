@@ -1,0 +1,24 @@
+Go to Google Console and create a new application
+Creating an application
+After creating the application, we need to go to API & Services > OAuth consent screen and select External
+Click Create
+We set the name, mail, logo, duplicate mail in the contact information
+Next we need to add users who can log in to the application
+Go to the Credentials > Create credentials > OAuth client ID section, you need to set the application type - WebApplication
+Next we need to ask "http://localhost:8080 " for Authorized JavaScript origins and "http://localhost:8080 /" for Authorized redirect URLs
+Next, in the window with the data for authentication, we download the JSON file, put it in the folder with the EXE file and rename it to client_secrets.json
+
+Fill config.ini:
+log_name = "systemlog.log" <- This is the name of our log that will clog up our file system (just kidding)
+ip = "192.168.100.2" <- This is our IP address which in Windows we can find out with the command "ipconfig"
+excel_file = "report.xlsx" <- This is the name of our report file that will be created every time
+
+Fill compare.ini:
+compare = [
+     ["mac", "name"], <- Here in the "mac" field we enter the mac address of our employee's device, and in the "name" field we enter his name, which will be replaced by the mac address in the xlsx file
+     ["mac2", "name2"],
+     ["mac3", "name3"],
+     ["mac4", "name4"],
+     ["mac5", "name5"],
+     ["mac6", "name6"]
+]
