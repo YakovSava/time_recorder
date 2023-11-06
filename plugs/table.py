@@ -1,4 +1,4 @@
-from time import strptime, mktime
+from time import strptime, mktime, strftime
 from openpyxl import Workbook
 
 excel_alphabet = [chr(i) for i in range(65, 91)]
@@ -37,11 +37,11 @@ class Book:
             for j, date in enumerate(used_dates, start=1):
                 try: self._sheet[f'{excel_alphabet[j]}{i+1}'] = data[mac][date]
                 except: self._sheet[f'{excel_alphabet[j]}{i+1}'] = 0
-        self.save()
+        self.save(self._filename + strftime('%b %d %H:%M:%S %Y'))
 
-        return self._filename
+        return self._filename + strftime('%b %d %H:%M:%S %Y')
 
-    def save(self):
+    def save(self, filename:str):
         self._book.save(self._filename)
         self._book.close()
 
