@@ -26,7 +26,7 @@ def load_every_day() -> None:
         gdr.send_exc_file(filename=filename)
 
         # timer.wait()
-        sleep(60*60*24)
+        sleep(config['gap'])
 
 if __name__ == '__main__':
     pr = Thread(target=syslog.start)
