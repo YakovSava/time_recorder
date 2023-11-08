@@ -1,9 +1,3 @@
-<p align="center">
-    <h1>
-        The program is written specifically for the company <a href="https://eriskip.com/ru">ERIS</a>
-    </h1>
-</p>
-
 # What is it?
 This is a special program designed for automated receipt and processing of logs from the KEENETIC router
 
