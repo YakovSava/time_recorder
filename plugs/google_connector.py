@@ -8,7 +8,7 @@ class GDrive:
         # gauth.LocalWebserverAuth()
         self._drive = GoogleDrive(gauth)
 
-    def update_exc_file(self, filename:str="table.xlsx") -> int:
+    def load_exc_file(self, filename:str="table.xlsx") -> int:
         file = self._drive.CreateFile({'title': filename})
         file.SetContentFile(filename)
         file.Upload()
@@ -24,4 +24,4 @@ class GDrive:
         except:
             return False
         else:
-            return Trues
+            return True

@@ -1,4 +1,4 @@
-from toml import loads
+from toml import loads, dumps
 
 class Converter:
 
@@ -21,3 +21,9 @@ class Converter:
             raise
         for _from, _to in self._load_list_compare()['compare']: macs = macs.replace(_from ,_to)
         return macs
+
+    def update_conf(self, new_conf:dict=None) -> None:
+        if new_conf is None:
+            raise
+        with open(self._config_filename, 'w', encoding='utf-8') as file:
+            file.write(dumps(new_conf))
