@@ -1,5 +1,5 @@
-from pydrive2.auth import GoogleAuth
-from pydrive2.drive import GoogleDrive
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 
 class GDrive:
 

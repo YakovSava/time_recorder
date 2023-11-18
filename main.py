@@ -6,7 +6,6 @@ from plugs import Converter, Book, Getter,\
 convert = Converter()
 config = convert.load_conf()
 
-# timer = Timer(gap=60*60*24)
 syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
 gdr = GDrive()
 exc = Book(filename=config['excel_file'], cmp=convert)
