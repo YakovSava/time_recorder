@@ -32,7 +32,6 @@ def load() -> None:
         else:
             gdr.update_loaded_file(file_id=config['file_id'], filename=filename)
 
-        # timer.wait()
         sleep(config['gap'])
 
 if __name__ == '__main__':
