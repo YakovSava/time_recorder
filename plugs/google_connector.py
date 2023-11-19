@@ -5,10 +5,11 @@ class GDrive:
 
     def __init__(self):
         gauth = GoogleAuth()
-        # gauth.LocalWebserverAuth()
+        gauth.LocalWebserverAuth()
         self._drive = GoogleDrive(gauth)
 
     def load_exc_file(self, filename:str="table.xlsx") -> int:
+        print(filename)
         file = self._drive.CreateFile({'title': filename})
         file.SetContentFile(filename)
         file.Upload()

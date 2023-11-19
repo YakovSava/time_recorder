@@ -1,5 +1,6 @@
 from time import strptime, mktime, strftime
 from openpyxl import Workbook
+from .converter import Converter
 
 excel_alphabet = [chr(i) for i in range(65, 91)]
 for it in [[chr(j)+chr(i) for i in range(65, 91)] for j in range(65, 91)]:
@@ -7,10 +8,11 @@ for it in [[chr(j)+chr(i) for i in range(65, 91)] for j in range(65, 91)]:
 
 class Book:
 
-    def __init__(self, filename:str="test.xlsx"):
+    def __init__(self, filename:str="test.xlsx", cmp:Converter=None):
         self._book = Workbook()
         self._sheet = self._book.active
         self._filename = filename
+        self._cmp = cmp
 
     def _sort_date(self, dates:list[str]) -> list[str]:
         return sorted(dates, key=lambda x: mktime(strptime(x, "%d.%m.%y")))
@@ -33,13 +35,13 @@ class Book:
                 used_dates.append(date)
                 counter += 1
         for i, mac in enumerate(data.keys(), start=1):
-            self._sheet[f'A{i+1}'] = mac
+            self._sheet[f'A{i+1}'] = self._cmp.compare(mac)
             for j, date in enumerate(used_dates, start=1):
                 try: self._sheet[f'{excel_alphabet[j]}{i+1}'] = data[mac][date]
                 except: self._sheet[f'{excel_alphabet[j]}{i+1}'] = 0
-        self.save(self._filename + strftime('%b %d %H:%M:%S %Y'))
+        self.save(self._filename)
 
-        return self._filename + strftime('%b %d %H:%M:%S %Y')
+        return self._filename
 
     def save(self, filename:str):
         self._book.save(self._filename)

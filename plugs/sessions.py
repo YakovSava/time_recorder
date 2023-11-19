@@ -24,10 +24,15 @@ class Getter:
 
     def parse_string(self, string:str) -> dict:
         data = {}
-        for line in string.splitlines():
+        lines = string.splitlines()
+        for line in lines:
+            if line.startswith('<14>'):
+                line = line[4:]
             splitted_line = line.split()
-            mac = splitted_line[-1][-1:]
-            time = strptime(" ".join(splitted_line[1:4]) + strftime(' %Y'), "%H:%M %d.%m.%y")
+            mac = splitted_line[-1][:-1]
+            if not self._is_mac_address(mac):
+                continue
+            time = strptime(" ".join(splitted_line[1:4]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
 
             if data.get(mac) is None:
                 data[mac] = {
@@ -36,9 +41,16 @@ class Getter:
                 }
 
             if "DHCPREQUEST" in line:
-                data[mac]['connects'].append(time)
+                data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
             elif "DHCPDISCOVER" in line:
-                data[mac]['discovers'].append(time)
+                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+            elif "deauthenticated" in line:
+                mac = line.split()[7][4:-1]
+                if not self._is_mac_address(mac):
+                    continue
+                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+            else:
+                continue
         return data
 
     def parse_file(self) -> dict:
