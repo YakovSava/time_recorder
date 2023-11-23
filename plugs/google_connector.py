@@ -27,10 +27,10 @@ class GDrive:
         else:
             trs = self._check_file_in_trash(file_id=file_id)
             #print('File in trash - ', trs)
-            return (True and trs)
+            return True and (not trs)
 
     def test_check_trash(self):
-        print(list(map(lambda x: x['id'], self._drive.ListFile({'q': "trashed=true"}).GetList())))
+        print('Files in trash - ', list(map(lambda x: x['id'], self._drive.ListFile({'q': "trashed=true"}).GetList())))
 
     def _check_file_in_trash(self, file_id:str=None) -> bool:
         if file_id is None:
@@ -53,10 +53,12 @@ class GDrive:
         tmp = self._untrash(file_id)
         #print('File untrash - ', tmp)
         if tmp:
+            #print('File trashed')
             self.update_loaded_file(
                 file_id=file_id,
                 filename=filename
             )
             return
         else:
+            #print("File reloaded")
             return self.load_exc_file(filename=filename)
