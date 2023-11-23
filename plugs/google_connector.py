@@ -21,10 +21,13 @@ class GDrive:
             file = self._drive.CreateFile({'id': file_id})
             file.SetContentFile(filename)
             file.Upload()
-        except:
+        except Exception as ex:
+            #print(ex)
             return False
         else:
-            return (True and self._check_file_in_trash(file_id=file_id))
+            trs = self._check_file_in_trash(file_id=file_id)
+            #print('File in trash - ', trs)
+            return (True and trs)
 
     def test_check_trash(self):
         print(list(map(lambda x: x['id'], self._drive.ListFile({'q': "trashed=true"}).GetList())))
@@ -35,19 +38,25 @@ class GDrive:
         return file_id in list(map(lambda x: x['id'], self._drive.ListFile({'q': "trashed=true"}).GetList()))
 
     def _untrash(self, file_id:str=None) -> bool:
-        file = self._drive.CreateFile({'id': file_id})
-        file.UnTrash()
-        if self._check_file_in_trash(file_id):
+        try:
+            file = self._drive.CreateFile({'id': file_id})
+            file.UnTrash()
+            if self._check_file_in_trash(file_id):
+                return False
+            return True
+        except:
             return False
-        return True
 
-    def repair(self, file_id:str=None, filename:str="table.xlsx"):
+    def repair(self, file_id:str=None, filename:str="table.xlsx") -> None or str:
         if not file_id:
             raise
-        if self._untrash(file_id):
-            self.load_exc_file(filename=filename)
-        else:
+        tmp = self._untrash(file_id)
+        #print('File untrash - ', tmp)
+        if tmp:
             self.update_loaded_file(
                 file_id=file_id,
                 filename=filename
             )
+            return
+        else:
+            return self.load_exc_file(filename=filename)
