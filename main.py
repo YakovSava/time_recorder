@@ -30,7 +30,10 @@ def load() -> None:
             config['file_id'] = file_id
             convert.update_conf(config)
         else:
-            gdr.update_loaded_file(file_id=config['file_id'], filename=filename)
+            res = gdr.update_loaded_file(file_id=config['file_id'], filename=filename)
+            if not res:
+                gdr.repair(file_id=config['file_id'], filename=filename)
+        gdr.test_check_trash()
 
         sleep(config['gap'])
 
