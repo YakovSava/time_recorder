@@ -32,7 +32,7 @@ class Getter:
             mac = splitted_line[-1][:-1]
             if not self._is_mac_address(mac):
                 continue
-            time = strptime(" ".join(splitted_line[1:4]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
+            time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
 
             if data.get(mac) is None:
                 data[mac] = {
@@ -73,7 +73,7 @@ class Getter:
             mac = splitted_line[-1][:-1]
             if not self._is_mac_address(mac):
                 continue
-            time = strptime(" ".join(splitted_line[1:4]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
+            time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
 
             if data.get(mac) is None:
                 data[mac] = {
