@@ -97,7 +97,7 @@ class Getter:
 
     def _calculate_connected_time(self, data:dict) -> dict:
         times = {}
-        print(data)
+        # print(data)
         connects = []
         discovers = []
 
@@ -135,6 +135,6 @@ class Getter:
         to_ret = {}
         for mac, data in parsed_log.items():
             tm = self._calculate_connected_time(data)
-            print(tm)
+            # print(tm)
             to_ret[mac] = tm
         return to_ret

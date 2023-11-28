@@ -36,9 +36,12 @@ class Book:
                 counter += 1
         for i, mac in enumerate(data.keys(), start=1):
             self._sheet[f'A{i+1}'] = self._cmp.compare(mac)
+            # print(data)
             for j, date in enumerate(used_dates, start=1):
-                try: self._sheet[f'{excel_alphabet[j]}{i+1}'] = data[mac][date]
-                except: self._sheet[f'{excel_alphabet[j]}{i+1}'] = 0
+                try:
+                    self._sheet[f'{excel_alphabet[j]}{i+1}'] = data[mac][date]
+                except Exception as ex:
+                    self._sheet[f'{excel_alphabet[j]}{i+1}'] = 0
         self.save(self._filename)
 
         return self._filename
