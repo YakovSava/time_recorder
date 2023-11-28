@@ -96,34 +96,32 @@ class Getter:
 
 
     def _calculate_connected_time(self, data:dict) -> dict:
-        connected_time_by_date = {}
+        times = {}
+        print(data)
+        connects = []
+        discovers = []
 
-        for i, connect_time in enumerate(data['connects']):
-            try:
-                connect_datetime = datetime.strptime(connect_time, "%H:%M %d.%m.%y")
+        for con in data['connects']:
+            connects.append(strptime(con, '%H:%M %d.%m.%y'))
+        for disc in data['discovers']:
+            discovers.append(strptime(disc, '%H:%M %d.%m.%y'))
 
-                connect_date = connect_datetime.date()
-
-                if i == len(data['connects']) - 1 and data['discovers'][i]:
-                    prev_disconnect_datetime = datetime.strptime(data['discovers'][i], "%H:%M %d.%m.%y")
-                    connected_time_by_date[connect_date] += connect_datetime - prev_disconnect_datetime
-                elif connect_date in connected_time_by_date:
-                    prev_disconnect_datetime = datetime.strptime(data['discovers'][i], "%H:%M %d.%m.%y")
-                    connected_time_by_date[connect_date] += connect_datetime - prev_disconnect_datetime
-                else:
-                    connected_time_by_date[connect_date] = connect_datetime - connect_datetime.replace(hour=0,
-                                                                                                       minute=0)
-            except:
-                continue
-
-        return self._transform_into_human_form(connected_time_by_date)
-
-
-    def _transform_into_human_form(self, data:dict) -> dict:
-        new_data = {}
-        for key, data in data.items():
-            new_data[strftime('%d.%m.%y', gmtime(datetime.combine(key, dtime()).timestamp()))] = abs(round(data.total_seconds() / 3600, 2))
-        return new_data
+        for con in connects:
+            days_discovers = []
+            for disc in discovers:
+                if (con.tm_mday == disc.tm_mday) and (con.tm_mon == disc.tm_mon) and (con.tm_year == con.tm_year):
+                    connected_time = ((disc.tm_hour - con.tm_hour) * 60 * 60) + ((disc.tm_min - con.tm_min) * 60) + (disc.tm_sec - con.tm_sec)
+                    if connected_time < 0:
+                        continue
+                    else:
+                        if times.get(strftime('%d.%m.%y', con)) is not None:
+                            times[strftime('%d.%m.%y', con)] += connected_time
+                        else:
+                            times[strftime('%d.%m.%y', con)] = connected_time
+            else:
+                if times.get(strftime('%d.%m.%y', con)) is not None:
+                    times[strftime('%d.%m.%y', con)] = 0
+        return times
 
     def calculate_times(self, parsed_log:dict) -> dict:
         '''
@@ -136,5 +134,7 @@ class Getter:
         '''
         to_ret = {}
         for mac, data in parsed_log.items():
-            to_ret[mac] = self._calculate_connected_time(data)
+            tm = self._calculate_connected_time(data)
+            print(tm)
+            to_ret[mac] = tm
         return to_ret

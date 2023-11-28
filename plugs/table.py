@@ -44,8 +44,11 @@ class Book:
         return self._filename
 
     def save(self, filename:str):
-        self._book.save(self._filename)
-        self._book.close()
+        try:
+            self._book.save(self._filename)
+            self._book.close()
+        except:
+            pass
 
     def __del__(self):
         self.save()
