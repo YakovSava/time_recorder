@@ -96,27 +96,28 @@ class Getter:
 
 
     def _calculate_connected_time(self, data:dict) -> dict:
+        times = {}
         print(data)
         connects = []
         discovers = []
 
         for con in data['connects']:
-            connects.append(strptime('%H:%M %d.%m.%y', con))
+            connects.append(strptime(con, '%H:%M %d.%m.%y'))
         for disc in data['discovers']:
-            discovers.append(strptime('%H:%M %d.%m.%y', disc))
+            discovers.append(strptime(disc, '%H:%M %d.%m.%y'))
 
         for con in connects:
             days_discovers = []
             for disc in discovers:
                 if (con.tm_mday == disc.tm_mday) and (con.tm_mon == disc.tm_mon) and (con.tm_year == con.tm_year):
-                    days_discovers.append(disc)
-
-
-        return ...
-
-
-    def _transform_into_human_form(self, data:dict) -> dict:
-        ...
+                    connected_time = ((disc.tm_hour - con.tm_hour) * 60 * 60) + ((disc.tm_min - con.tm_min) * 60) + (disc.tm_sec - con.tm_sec)
+                    if connected_time < 0:
+                        continue
+                    else:
+                        times[strftime('%H:%M %d.%m.%y', con)] = connected_time
+            else:
+                times[strftime('%H:%M %d.%m.%y', con)] = 0
+        return times
 
     def calculate_times(self, parsed_log:dict) -> dict:
         '''
@@ -129,5 +130,7 @@ class Getter:
         '''
         to_ret = {}
         for mac, data in parsed_log.items():
-            to_ret[mac] = self._calculate_connected_time(data)
+            tm = self._calculate_connected_time(data)
+            print(tm)
+            to_ret[mac] = tm
         return to_ret
