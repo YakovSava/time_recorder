@@ -19,7 +19,7 @@ def load() -> None:
     global config
     print('Loader func started!')
     while True:
-        #parsed_ln = get.parse_file()
+        # parsed_ln = get.parse_file()
         with open('test_files/test_log.txt', 'r', encoding='utf-8') as file:
            parsed_ln = get.parse_string(file.read())
         calculated_info = get.calculate_times(parsed_ln)

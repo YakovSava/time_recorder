@@ -15,7 +15,7 @@ class Book:
         self._cmp = cmp
 
     def _sort_date(self, dates:list[str]) -> list[str]:
-        return sorted(dates, key=lambda x: mktime(strptime(x, "%H:%M %d.%m.%y")))
+        return sorted(dates, key=lambda x: mktime(strptime(x, "%d.%m.%y")))
 
     def _get_all_dates(self, data:dict) -> list[str]:
         dates = []
@@ -44,8 +44,11 @@ class Book:
         return self._filename
 
     def save(self, filename:str):
-        self._book.save(self._filename)
-        self._book.close()
+        try:
+            self._book.save(self._filename)
+            self._book.close()
+        except:
+            pass
 
     def __del__(self):
         self.save()

@@ -26,7 +26,7 @@ class Getter:
         data = {}
         lines = string.splitlines()
         for line in lines:
-            if line.startswith('[I]'):
+            if line.startswith('<14>'):
                 line = line[4:]
             splitted_line = line.split()
             mac = splitted_line[-1][:-1]
@@ -67,7 +67,7 @@ class Getter:
         with open(self._test_filename if self._tested else self._filename, 'r', encoding='utf-8') as file:
             lines = file.readlines()
         for line in lines:
-            if line.startswith('[I]]'):
+            if line.startswith('<14>'):
                 line = line[4:]
             splitted_line = line.split()
             mac = splitted_line[-1][:-1]
@@ -114,9 +114,13 @@ class Getter:
                     if connected_time < 0:
                         continue
                     else:
-                        times[strftime('%H:%M %d.%m.%y', con)] = connected_time
+                        if times.get(strftime('%d.%m.%y', con)) is not None:
+                            times[strftime('%d.%m.%y', con)] += connected_time
+                        else:
+                            times[strftime('%d.%m.%y', con)] = connected_time
             else:
-                times[strftime('%H:%M %d.%m.%y', con)] = 0
+                if times.get(strftime('%d.%m.%y', con)) is not None:
+                    times[strftime('%d.%m.%y', con)] = 0
         return times
 
     def calculate_times(self, parsed_log:dict) -> dict:
