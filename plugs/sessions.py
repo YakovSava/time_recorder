@@ -26,7 +26,7 @@ class Getter:
         data = {}
         lines = string.splitlines()
         for line in lines:
-            if line.startswith('<14>'):
+            if line.startswith('[I]'):
                 line = line[4:]
             splitted_line = line.split()
             mac = splitted_line[-1][:-1]
@@ -67,7 +67,7 @@ class Getter:
         with open(self._test_filename if self._tested else self._filename, 'r', encoding='utf-8') as file:
             lines = file.readlines()
         for line in lines:
-            if line.startswith('<14>'):
+            if line.startswith('[I]]'):
                 line = line[4:]
             splitted_line = line.split()
             mac = splitted_line[-1][:-1]
@@ -96,34 +96,27 @@ class Getter:
 
 
     def _calculate_connected_time(self, data:dict) -> dict:
-        connected_time_by_date = {}
+        print(data)
+        connects = []
+        discovers = []
 
-        for i, connect_time in enumerate(data['connects']):
-            try:
-                connect_datetime = datetime.strptime(connect_time, "%H:%M %d.%m.%y")
+        for con in data['connects']:
+            connects.append(strptime('%H:%M %d.%m.%y', con))
+        for disc in data['discovers']:
+            discovers.append(strptime('%H:%M %d.%m.%y', disc))
 
-                connect_date = connect_datetime.date()
+        for con in connects:
+            days_discovers = []
+            for disc in discovers:
+                if (con.tm_mday == disc.tm_mday) and (con.tm_mon == disc.tm_mon) and (con.tm_year == con.tm_year):
+                    days_discovers.append(disc)
 
-                if i == len(data['connects']) - 1 and data['discovers'][i]:
-                    prev_disconnect_datetime = datetime.strptime(data['discovers'][i], "%H:%M %d.%m.%y")
-                    connected_time_by_date[connect_date] += connect_datetime - prev_disconnect_datetime
-                elif connect_date in connected_time_by_date:
-                    prev_disconnect_datetime = datetime.strptime(data['discovers'][i], "%H:%M %d.%m.%y")
-                    connected_time_by_date[connect_date] += connect_datetime - prev_disconnect_datetime
-                else:
-                    connected_time_by_date[connect_date] = connect_datetime - connect_datetime.replace(hour=0,
-                                                                                                       minute=0)
-            except:
-                continue
 
-        return self._transform_into_human_form(connected_time_by_date)
+        return ...
 
 
     def _transform_into_human_form(self, data:dict) -> dict:
-        new_data = {}
-        for key, data in data.items():
-            new_data[strftime('%d.%m.%y', gmtime(datetime.combine(key, dtime()).timestamp()))] = abs(round(data.total_seconds() / 3600, 2))
-        return new_data
+        ...
 
     def calculate_times(self, parsed_log:dict) -> dict:
         '''
