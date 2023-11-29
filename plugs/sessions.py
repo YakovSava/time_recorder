@@ -1,8 +1,7 @@
 import re
 
 from os.path import exists
-from time import strptime, strftime, gmtime
-from datetime import datetime, time as dtime
+from time import strptime, strftime, mktime, time
 
 class Getter:
 
@@ -77,7 +76,7 @@ class Getter:
                 continue
             if not self._is_mac_address(mac):
                 if "deauthenticated" in line:
-                    print(line)
+                    # print(line)
                     mac = line.split()[7][4:-1]
                     if not self._is_mac_address(mac):
                         continue
@@ -96,11 +95,11 @@ class Getter:
                     'connects': []
                 }
 
-            print(
-                "DHCPREQUEST" in line, line, "\n",
-                "DHCPDISCOVER" in line, line, "\n",
-                "deauthenticated" in line, line, "\n"
-            )
+            # print(
+            #     "DHCPREQUEST" in line, line, "\n",
+            #     "DHCPDISCOVER" in line, line, "\n",
+            #     "deauthenticated" in line, line, "\n"
+            # )
 
             if "DHCPREQUEST" in line:
                 data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
@@ -123,7 +122,6 @@ class Getter:
             discovers.append(strptime(disc, '%H:%M %d.%m.%y'))
 
         for con in connects:
-            days_discovers = []
             for disc in discovers:
                 if (con.tm_mday == disc.tm_mday) and (con.tm_mon == disc.tm_mon) and (con.tm_year == con.tm_year):
                     connected_time = ((disc.tm_hour - con.tm_hour) * 60 * 60) + ((disc.tm_min - con.tm_min) * 60) + (disc.tm_sec - con.tm_sec)
@@ -136,7 +134,8 @@ class Getter:
                             times[strftime('%d.%m.%y', con)] = connected_time
             else:
                 if times.get(strftime('%d.%m.%y', con)) is not None:
-                    times[strftime('%d.%m.%y', con)] = 0
+                    times[strftime('%d.%m.%y', con)] = round((round(time() - mktime(con)) / 60) / 60)
+            # print(times)
         return times
 
     def calculate_times(self, parsed_log:dict) -> dict:
@@ -150,7 +149,6 @@ class Getter:
         '''
         to_ret = {}
         for mac, data in parsed_log.items():
-            tm = self._calculate_connected_time(data)
-            # print(tm)
-            to_ret[mac] = tm
+            to_ret[mac] = self._calculate_connected_time(data)
+            print(to_ret)
         return to_ret
