@@ -25,6 +25,7 @@ class Book:
         return dates
 
     def save_xlsx(self, data:dict) -> str:
+        # print(data)
         self._sheet['A1'] = 'mac-адрес'
         dates = self._sort_date(self._get_all_dates(data))
         used_dates = []

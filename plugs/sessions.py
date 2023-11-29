@@ -70,7 +70,10 @@ class Getter:
             if line.startswith('<14>'):
                 line = line[4:]
             splitted_line = line.split()
-            mac = splitted_line[-1][:-1]
+            try:
+                mac = splitted_line[-1][:-1]
+            except Exception as ex:
+                continue
             if not self._is_mac_address(mac):
                 continue
             time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
@@ -86,6 +89,7 @@ class Getter:
             elif "DHCPDISCOVER" in line:
                 data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
             elif "deauthenticated" in line:
+                print(line)
                 mac = line.split()[7][4:-1]
                 if not self._is_mac_address(mac):
                     continue
