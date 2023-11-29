@@ -70,13 +70,25 @@ class Getter:
             if line.startswith('<14>'):
                 line = line[4:]
             splitted_line = line.split()
+            time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
             try:
                 mac = splitted_line[-1][:-1]
             except Exception as ex:
                 continue
             if not self._is_mac_address(mac):
-                continue
-            time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
+                if "deauthenticated" in line:
+                    print(line)
+                    mac = line.split()[7][4:-1]
+                    if not self._is_mac_address(mac):
+                        continue
+                    if data.get(mac) is None:
+                        data[mac] = {
+                            'discovers': [],
+                            'connects': []
+                        }
+                    data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+                else:
+                    continue
 
             if data.get(mac) is None:
                 data[mac] = {
@@ -84,15 +96,15 @@ class Getter:
                     'connects': []
                 }
 
+            print(
+                "DHCPREQUEST" in line, line, "\n",
+                "DHCPDISCOVER" in line, line, "\n",
+                "deauthenticated" in line, line, "\n"
+            )
+
             if "DHCPREQUEST" in line:
                 data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
             elif "DHCPDISCOVER" in line:
-                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
-            elif "deauthenticated" in line:
-                print(line)
-                mac = line.split()[7][4:-1]
-                if not self._is_mac_address(mac):
-                    continue
                 data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
             else:
                 continue
