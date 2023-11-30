@@ -2,12 +2,14 @@ from time import sleep
 from threading import Thread
 from plugs import Converter, Book, Getter,\
     SimpleSyslogServer, GDrive
+from plugs.google_connector import GDriveTest
 
 convert = Converter()
 config = convert.load_conf()
 
 syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
-gdr = GDrive()
+# gdr = GDrive()
+gdr = GDriveTest()
 exc = Book(filename=config['excel_file'], cmp=convert)
 get = Getter(filename=config['log_name'])
 

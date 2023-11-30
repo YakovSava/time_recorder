@@ -1,5 +1,5 @@
-<14>Nov 21 20:45:37 Keenetic-8821 ndm: Network::Interface::Mtk::WifiMonitor: "WifiMaster0/AccessPoint0": STA(a6:1e:3a:13:27:e1) had deauthenticated by STA (reason: STA is leaving or has left BSS). 
-<14>Nov 21 20:45:39 Keenetic-8821 ndm: Network::Interface::Mtk::WifiMonitor: "WifiMaster0/AccessPoint0": STA(a6:1e:3a:13:27:e1) had associated (has FT caps). 
+<14>Nov 21 20:45:37 Keenetic-8821 ndm: Network::Interface::Mtk::WifiMonitor: "WifiMaster0/AccessPoint0": STA(a6:1e:3a:13:27:e1) had deauthenticated by STA (reason: STA is leaving or has left BSS).
+<14>Nov 21 20:45:39 Keenetic-8821 ndm: Network::Interface::Mtk::WifiMonitor: "WifiMaster0/AccessPoint0": STA(a6:1e:3a:13:27:e1) had associated (has FT caps).
 <14>Nov 21 20:45:39 Keenetic-8821 ndm: Network::Interface::Mtk::WifiMonitor: "WifiMaster0/AccessPoint0": STA(a6:1e:3a:13:27:e1) set key done in WPA2/WPA2PSK. 
 <14>Nov 21 20:45:40 Keenetic-8821 ndhcps: DHCPREQUEST received (STATE_INIT) for 192.168.1.82 from a6:1e:3a:13:27:e1. 
 <14>Nov 21 20:45:40 Keenetic-8821 ndhcps: sending ACK of 192.168.1.82 to a6:1e:3a:13:27:e1. 
@@ -26,3 +26,8 @@
 <14>Nov 22 16:52:26 Keenetic-8821 ndhcps: sending ACK of 192.168.1.120 to 50:a1:32:1d:88:af. 
 <14>Nov 22 17:04:15 Keenetic-8821 ndhcps: DHCPREQUEST received (STATE_RENEWING) for 192.168.1.42 from b4:0e:de:5f:17:11. 
 <14>Nov 22 17:04:16 Keenetic-8821 ndhcps: sending ACK of 192.168.1.42 to b4:0e:de:5f:17:11. 
+<14>Nov 27 15:17:10 Keenetic-8821 ndm: Network::Interface::Mtk::WifiMonitor: "WifiMaster0/AccessPoint0": STA(a6:1e:3a:13:27:e1) had deauthenticated by STA (reason: STA is leaving or has left BSS). 
+<14>Nov 27 15:17:12 Keenetic-8821 ndm: Network::Interface::Mtk::WifiMonitor: "WifiMaster0/AccessPoint0": STA(a6:1e:3a:13:27:e1) had associated (has FT caps). 
+<14>Nov 27 15:17:12 Keenetic-8821 ndm: Network::Interface::Mtk::WifiMonitor: "WifiMaster0/AccessPoint0": STA(a6:1e:3a:13:27:e1) set key done in WPA2/WPA2PSK. 
+<14>Nov 27 15:17:13 Keenetic-8821 ndhcps: DHCPREQUEST received (STATE_INIT) for 192.168.1.82 from a6:1e:3a:13:27:e1. 
+<14>Nov 27 15:17:13 Keenetic-8821 ndhcps: sending ACK of 192.168.1.82 to a6:1e:3a:13:27:e1. 

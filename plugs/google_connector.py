@@ -62,3 +62,27 @@ class GDrive:
         else:
             #print("File reloaded")
             return self.load_exc_file(filename=filename)
+
+
+class GDriveTest:
+
+    def __init__(self):
+        ...
+
+    def load_exc_file(self, filename:str="table.xlsx") -> int:
+        ...
+
+    def update_loaded_file(self, file_id:str=None, filename:str="table.xlsx") -> bool:
+        ...
+
+    def test_check_trash(self):
+        ...
+
+    def _check_file_in_trash(self, file_id:str=None) -> bool:
+        ...
+
+    def _untrash(self, file_id:str=None) -> bool:
+        ...
+
+    def repair(self, file_id:str=None, filename:str="table.xlsx") -> None or str:
+        ...
