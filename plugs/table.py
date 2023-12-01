@@ -47,7 +47,7 @@ class Book:
 
         return self._filename
 
-    def save(self, filename:str):
+    def save(self, filename:str=...):
         try:
             self._book.save(self._filename)
             self._book.close()

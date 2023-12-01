@@ -134,7 +134,10 @@ class Getter:
                             times[strftime('%d.%m.%y', con)] = connected_time
             else:
                 if times.get(strftime('%d.%m.%y', con)) is not None:
-                    times[strftime('%d.%m.%y', con)] = round((round(time() - mktime(con)) / 60) / 60)
+                    if int(strftime("%j", con)) < int(strftime("%j")):
+                        times[strftime('%d.%m.%y', con)] = round((round(time() - mktime(con)) / 60) / 60) / (int(strftime("%j")) - int(strftime("%j", con)))
+                    else:
+                        times[strftime('%d.%m.%y', con)] = round((round(time() - mktime(con)) / 60) / 60)
             # print(times)
         return times
 
