@@ -8,8 +8,8 @@ convert = Converter()
 config = convert.load_conf()
 
 syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
-# gdr = GDrive()
-gdr = GDriveTest()
+gdr = GDrive()
+#gdr = GDriveTest()
 exc = Book(filename=config['excel_file'], cmp=convert)
 get = Getter(filename=config['log_name'])
 
