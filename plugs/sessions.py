@@ -1,7 +1,7 @@
 import re
 
 from os.path import exists
-from time import strptime, strftime, mktime, time
+from time import strptime, strftime, struct_time
 
 class Getter:
 
@@ -13,6 +13,16 @@ class Getter:
         if not exists(self._test_filename if self._tested else self._filename):
             with open(self._test_filename if self._tested else self._filename, 'w', encoding='utf-8') as file:
                 file.write('')
+
+    def _get_STA(self, line:str) -> str:
+        line = line.split('STA')
+        line = line[1].split()[0][1:-1]
+        #print(line)
+        return line
+
+    def _calc_times(self, con:struct_time) -> int:
+        disc = strptime("19:00 " + strftime("%d.%m.%y", con), "%H:%M %d.%m.%y")
+        return ((con.tm_hour * 60 * 60) + (con.tm_min * 60) + (con.tm_sec)) // ((disc.tm_hour * 60 * 60) + (disc.tm_min * 60) + (disc.tm_sec))
 
     def _is_mac_address(self, string:str) -> bool:
         pattern = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
@@ -69,16 +79,18 @@ class Getter:
             if line.startswith('<14>'):
                 line = line[4:]
             splitted_line = line.split()
-            time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
             try:
+                time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
                 mac = splitted_line[-1][:-1]
             except Exception as ex:
                 continue
             if not self._is_mac_address(mac):
                 if "deauthenticated" in line:
-                    # print(line)
-                    mac = line.split()[7][4:-1]
+                    #print(line)
+                    mac = self._get_STA(line)
+                    #print(self._is_mac_address(mac))
                     if not self._is_mac_address(mac):
+                        #print(mac)
                         continue
                     if data.get(mac) is None:
                         data[mac] = {
@@ -111,8 +123,9 @@ class Getter:
 
 
     def _calculate_connected_time(self, data:dict) -> dict:
+
         times = {}
-        # print(data)
+        print(data)
         connects = []
         discovers = []
 
@@ -121,24 +134,31 @@ class Getter:
         for disc in data['discovers']:
             discovers.append(strptime(disc, '%H:%M %d.%m.%y'))
 
+        if len(connects) == 0:
+            return {}
+
         for con in connects:
-            for disc in discovers:
-                if (con.tm_mday == disc.tm_mday) and (con.tm_mon == disc.tm_mon) and (con.tm_year == con.tm_year):
-                    connected_time = ((disc.tm_hour - con.tm_hour) * 60 * 60) + ((disc.tm_min - con.tm_min) * 60) + (disc.tm_sec - con.tm_sec)
-                    if connected_time < 0:
-                        continue
-                    else:
-                        if times.get(strftime('%d.%m.%y', con)) is not None:
-                            times[strftime('%d.%m.%y', con)] += connected_time
-                        else:
-                            times[strftime('%d.%m.%y', con)] = connected_time
-            else:
-                if times.get(strftime('%d.%m.%y', con)) is not None:
-                    if int(strftime("%j", con)) < int(strftime("%j")):
-                        times[strftime('%d.%m.%y', con)] = round((round(time() - mktime(con)) / 60) / 60) / (int(strftime("%j")) - int(strftime("%j", con)))
-                    else:
-                        times[strftime('%d.%m.%y', con)] = round((round(time() - mktime(con)) / 60) / 60)
-            # print(times)
+            try:
+                filtered_discovers = sorted(list(
+                        filter(
+                            lambda x: ((con.tm_mday == x.tm_mday) and (con.tm_mon == x.tm_mon) and (con.tm_year == x.tm_year)),
+                            discovers
+                        )
+                    ),
+                    key=lambda x: (x.tm_hour * 3600) + (x.tm_min * 60) + (x.tm_sec)
+                )[-1]
+            except Exception as ex:
+                #print(ex)
+                filtered_discovers = 0
+            if filtered_discovers == 0:
+                times[strftime("%d.%m.%y", con)] = self._calc_times(con)
+                continue
+            if times.get(strftime("%d.%m.%y", con)) is not None:
+                new = self._calculate_connected(con, filtered_discovers)
+                if new > times[strftime("%d.%m.%y", con)]:
+                    times[strftime("%d.%m.%y", con)] = new
+                    continue
+            times[strftime("%d.%m.%y", con)] = self._calculate_connected(con, filtered_discovers)
         return times
 
     def calculate_times(self, parsed_log:dict) -> dict:
@@ -153,5 +173,9 @@ class Getter:
         to_ret = {}
         for mac, data in parsed_log.items():
             to_ret[mac] = self._calculate_connected_time(data)
-            print(to_ret)
         return to_ret
+
+    def _calculate_connected(self, con:struct_time, filtered_discovers:struct_time) -> int:
+        #print(f"Connect: {con}\nDisconnect: {filtered_discovers}")
+        _t = ((filtered_discovers.tm_hour * 60 * 60) + (filtered_discovers.tm_min * 60) + (filtered_discovers.tm_sec)) - ((con.tm_hour * 3600) + (con.tm_min * 60) + (con.tm_sec))
+        return (_t if _t > 0 else 0) // (60 * 60)

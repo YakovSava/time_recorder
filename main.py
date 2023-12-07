@@ -8,8 +8,8 @@ convert = Converter()
 config = convert.load_conf()
 
 syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
-gdr = GDrive()
-#gdr = GDriveTest()
+#gdr = GDrive()
+gdr = GDriveTest()
 exc = Book(filename=config['excel_file'], cmp=convert)
 get = Getter(filename=config['log_name'])
 
@@ -21,6 +21,7 @@ def load() -> None:
     global config
     print('Loader func started!')
     while True:
+        config = convert.load_conf()
         parsed_ln = get.parse_file()
         # with open('test_files/test_log.txt', 'r', encoding='utf-8') as file:
         #    parsed_ln = get.parse_string(file.read())
@@ -35,7 +36,7 @@ def load() -> None:
             config = convert.load_conf()
         else:
             res = gdr.update_loaded_file(file_id=config['file_id'], filename=filename)
-            print("File upload - ", res)
+            #print("File upload - ", res)
             if not res:
                 result = gdr.repair(file_id=config['file_id'], filename=filename)
                 if result:

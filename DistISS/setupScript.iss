@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Keenetic detector"
-#define MyAppVersion "1.5 patch 12"
+#define MyAppVersion "1.1"
 #define MyAppPublisher "Yakov Savelev"
 #define MyAppURL "https://github.com/YakovSava"
 #define MyAppExeName "main.exe"
