@@ -125,7 +125,7 @@ class Getter:
     def _calculate_connected_time(self, data:dict) -> dict:
 
         times = {}
-        #print(data)
+        print(data)
         connects = []
         discovers = []
 
@@ -148,7 +148,7 @@ class Getter:
                     key=lambda x: (x.tm_hour * 3600) + (x.tm_min * 60) + (x.tm_sec)
                 )[-1]
             except Exception as ex:
-                print(ex)
+                #print(ex)
                 filtered_discovers = 0
             if filtered_discovers == 0:
                 times[strftime("%d.%m.%y", con)] = self._calc_times(con)
@@ -159,7 +159,6 @@ class Getter:
                     times[strftime("%d.%m.%y", con)] = new
                     continue
             times[strftime("%d.%m.%y", con)] = self._calculate_connected(con, filtered_discovers)
-        #print(times)
         return times
 
     def calculate_times(self, parsed_log:dict) -> dict:
@@ -177,6 +176,6 @@ class Getter:
         return to_ret
 
     def _calculate_connected(self, con:struct_time, filtered_discovers:struct_time) -> int:
-        print(f"Times = {filtered_discovers} - {con}")
-        _t = filtered_discovers - con
-        return (_t.tm_hour * 3600) + (_t.tm_min * 60) + (_t.tm_sec)
+        #print(f"Connect: {con}\nDisconnect: {filtered_discovers}")
+        _t = ((filtered_discovers.tm_hour * 60 * 60) + (filtered_discovers.tm_min * 60) + (filtered_discovers.tm_sec)) - ((con.tm_hour * 3600) + (con.tm_min * 60) + (con.tm_sec))
+        return (_t if _t > 0 else 0) // (60 * 60)
