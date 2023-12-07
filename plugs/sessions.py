@@ -125,7 +125,7 @@ class Getter:
     def _calculate_connected_time(self, data:dict) -> dict:
 
         times = {}
-        print(data)
+        #print(data)
         connects = []
         discovers = []
 
