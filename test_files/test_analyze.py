@@ -90,18 +90,64 @@ def _not_disconnected(con:struct_time) -> int:
 			"%H:%M %d.%m.%y"
 		)
 	) - mktime(con)
-	return round(day_time / 3600)
+	return abs(round(day_time / 3600))
 
 def _not_connected(disc:struct_time) -> int:
 	day_time = mktime(disc) - mktime(
 		strptime(
-			"8:00 "+strftime("%d.%m.%y", disc),
+			"9:00 "+strftime("%d.%m.%y", disc),
 			"%H:%M %d.%m.%y"
 		)
 	)
-	return round(day_time / 3600)
+	return abs(round(day_time / 3600))
+
+def _get_all_days_on_dict(times:dict) -> list[struct_time]:
+	time = []
+	for timename in times.keys():
+		_t = _get_all_days(
+			list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times[timename]))
+		)
+		for t in _t:
+			if t not in time:
+				time.append(t)
+	return list(map(lambda x: strptime(x, "%d.%m.%y"), time))
+
+def _calculate_time(con:struct_time, disc:struct_time) -> int:
+	return abs(round((mktime(disc) - mktime(con)) / 3600))
+
+def _to_human_form(date:struct_time):
+	return strftime("%d.%m.%y", date)
 
 def analyze(times:dict):
-	tm = []
+	result = {}
+
+	all_days = _get_all_days_on_dict(times)
+	for days in all_days:
+		connects_on_day = _get_date_of_day(list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times['connects'])), days)
+		disconnects_on_day = _get_date_of_day(list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times['discovers'])), days)
+
+		connects_on_day, disconnects_on_day = _rm_repit_times(
+			connects_on_day,
+			disconnects_on_day
+		)
+
+		if len(disconnects_on_day) == 0:
+			if len(connects_on_day) != 0:
+				result[_to_human_form(days)] = _not_disconnected(_get_minimal_st(connects_on_day))
+			else:
+				result[_to_human_form(days)] = 0
+		elif len(connects_on_day) == 0:
+			if len(disconnects_on_day) != 0:
+				result[_to_human_form(days)] = _not_connected(_get_maximal_st(disconnects_on_day))
+			else:
+				result[_to_human_form(days)] = 0
+		else:
+			previously_connect = _get_minimal_st(connects_on_day)
+			latest_disconnect = _get_maximal_st(disconnects_on_day)
+
+			result[_to_human_form(days)] = _calculate_time(previously_connect, latest_disconnect)
+	return result
+
+if __name__ == '__main__':
 	for time in times:
-		_t = 
+		print(analyze(time))
