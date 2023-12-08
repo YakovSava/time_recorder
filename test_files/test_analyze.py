@@ -51,15 +51,57 @@ def _get_maximal_time_on_day(dates:list[struct_time], day:struct_time) -> struct
 		_get_date_of_day(dates, day)
 	)
 
-def analyze(data:dict) -> dict:
-	"""
-	Return:
-		{
-			"day.month.year": 12 // Integer. Count of hours of job worker
-		}
-	"""
-	try:
-		...
-	except Exception as ex:
-		print(ex)
-		return {}
+def _rm_repit_times(cons:list[struct_time], discs:list[struct_time]) -> list[list[struct_time], list[struct_time]]:
+	connects = []
+	disconnects = []
+	for con in cons:
+		if con not in connects:
+			connects.append(con)
+
+	for disc in discs:
+		if (disc not in disconnects) and (disc not in connects):
+			disconnects.append(disc)
+
+	return [connects, disconnects]
+
+def _get_all_days(dates:list[struct_time]) -> list[str]:
+	days = []
+	for date in dates:
+		day = strftime("%d.%m.%y", date)
+		if day not in days:
+			days.append(day)
+	return days
+
+# def _get_all_days_from_dict(all_dates:list[dict]) -> list[str]:
+# 	all_days = []
+# 	for date in all_dates:
+# 		for date1 in (_get_all_days(date['connects'])):
+# 			if date1 not in all_days:
+# 				all_days.append(date1)
+# 		for date1 in (_get_all_days(date['discovers'])):
+# 			if date1 not in all_days:
+# 				all_days.append(date1)
+# 	return all_days
+
+def _not_disconnected(con:struct_time) -> int:
+	day_time = mktime(
+		strptime(
+			"19:00 "+strftime("%d.%m.%y", con),
+			"%H:%M %d.%m.%y"
+		)
+	) - mktime(con)
+	return round(day_time / 3600)
+
+def _not_connected(disc:struct_time) -> int:
+	day_time = mktime(disc) - mktime(
+		strptime(
+			"8:00 "+strftime("%d.%m.%y", disc),
+			"%H:%M %d.%m.%y"
+		)
+	)
+	return round(day_time / 3600)
+
+def analyze(times:dict):
+	tm = []
+	for time in times:
+		_t = 
