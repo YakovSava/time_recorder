@@ -1,7 +1,8 @@
 import re
 
 from os.path import exists
-from time import strptime, strftime, struct_time, mktime
+from time import strptime, strftime, struct_time,\
+    mktime, gmtime, time
 
 def _sort_st(sts:list[struct_time]) -> struct_time:
     return sorted(sts, key=lambda x: mktime(x))
@@ -68,13 +69,16 @@ def _get_all_days(dates:list[struct_time]) -> list[str]:
 #               all_days.append(date1)
 #   return all_days
 
-def _not_disconnected(con:struct_time) -> int:
-    day_time = mktime(
-        strptime(
-            "19:00 "+strftime("%d.%m.%y", con),
-            "%H:%M %d.%m.%y"
-        )
-    ) - mktime(con)
+def _not_disconnected(con:struct_time, this:bool=False) -> int:
+    if this:
+        day_time = time() - mktime(con)
+    else:
+        day_time = mktime(
+            strptime(
+                "17:30 "+strftime("%d.%m.%y", con),
+                "%H:%M %d.%m.%y"
+            )
+        ) - mktime(con)
     return abs(round(day_time / 3600))
 
 def _not_connected(disc:struct_time) -> int:
@@ -117,6 +121,9 @@ def _analyze(times:dict):
         )
 
         if len(disconnects_on_day) == 0:
+            if strftime("%d.%m.%y", days) == strftime("%d.%m.%y", gmtime()):
+                result[_to_human_form(days)] = _not_disconnected(_get_minimal_st(connects_on_day), this=True)
+                continue
             if len(connects_on_day) != 0:
                 result[_to_human_form(days)] = _not_disconnected(_get_minimal_st(connects_on_day))
             else:
@@ -251,10 +258,6 @@ class Getter:
                 continue
         return data
 
-
-    def _calculate_connected_time(self, data:dict) -> dict:
-        return _analyze(data)
-
     def calculate_times(self, parsed_log:dict) -> dict:
         '''
         return this (example)
@@ -266,7 +269,7 @@ class Getter:
         '''
         to_ret = {}
         for mac, data in parsed_log.items():
-            to_ret[mac] = self._calculate_connected_time(data)
+            to_ret[mac] = _analyze(data)
         return to_ret
 
     def _calculate_connected(self, con:struct_time, filtered_discovers:struct_time) -> int:
