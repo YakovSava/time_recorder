@@ -1,7 +1,137 @@
 import re
 
 from os.path import exists
-from time import strptime, strftime, struct_time
+from time import strptime, strftime, struct_time, mktime
+
+def _sort_st(sts:list[struct_time]) -> struct_time:
+    return sorted(sts, key=lambda x: mktime(x))
+
+def _get_minimal_st(sts:list[struct_time]) -> struct_time:
+    return _sort_st(sts)[-1]
+
+def _get_maximal_st(sts:list[struct_time]) -> struct_time:
+    return _sort_st(sts)[0]
+
+def _str_to_st(string:str) -> struct_time:
+    return strptime(string, "%H:%M %d.%m.%y")
+
+def _liststr_to_listst(liststr:list[str]) -> list[struct_time]:
+    return list(map(_str_to_st, liststr))
+
+def _get_date_of_day(dates:list[struct_time], day:struct_time) -> list[struct_time]:
+    return list(
+        filter(
+            lambda x: ((x.tm_mday == day.tm_mday) and (x.tm_mon == day.tm_mon) and (x.tm_year == day.tm_year)),
+            dates
+        )
+    )
+
+def _get_minimal_time_on_day(dates:list[struct_time], day:struct_time) -> struct_time:
+    return _get_minimal_st(
+        _get_date_of_day(dates, day)
+    )
+
+def _get_maximal_time_on_day(dates:list[struct_time], day:struct_time) -> struct_time:
+    return _get_maximal_st(
+        _get_date_of_day(dates, day)
+    )
+
+def _rm_repit_times(cons:list[struct_time], discs:list[struct_time]) -> list[list[struct_time], list[struct_time]]:
+    connects = []
+    disconnects = []
+    for con in cons:
+        if con not in connects:
+            connects.append(con)
+
+    for disc in discs:
+        if (disc not in disconnects) and (disc not in connects):
+            disconnects.append(disc)
+
+    return [connects, disconnects]
+
+def _get_all_days(dates:list[struct_time]) -> list[str]:
+    days = []
+    for date in dates:
+        day = strftime("%d.%m.%y", date)
+        if day not in days:
+            days.append(day)
+    return days
+
+# def _get_all_days_from_dict(all_dates:list[dict]) -> list[str]:
+#   all_days = []
+#   for date in all_dates:
+#       for date1 in (_get_all_days(date['connects'])):
+#           if date1 not in all_days:
+#               all_days.append(date1)
+#       for date1 in (_get_all_days(date['discovers'])):
+#           if date1 not in all_days:
+#               all_days.append(date1)
+#   return all_days
+
+def _not_disconnected(con:struct_time) -> int:
+    day_time = mktime(
+        strptime(
+            "19:00 "+strftime("%d.%m.%y", con),
+            "%H:%M %d.%m.%y"
+        )
+    ) - mktime(con)
+    return abs(round(day_time / 3600))
+
+def _not_connected(disc:struct_time) -> int:
+    day_time = mktime(disc) - mktime(
+        strptime(
+            "9:00 "+strftime("%d.%m.%y", disc),
+            "%H:%M %d.%m.%y"
+        )
+    )
+    return abs(round(day_time / 3600))
+
+def _get_all_days_on_dict(times:dict) -> list[struct_time]:
+    time = []
+    for timename in times.keys():
+        _t = _get_all_days(
+            list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times[timename]))
+        )
+        for t in _t:
+            if t not in time:
+                time.append(t)
+    return list(map(lambda x: strptime(x, "%d.%m.%y"), time))
+
+def _calculate_time(con:struct_time, disc:struct_time) -> int:
+    return abs(round((mktime(disc) - mktime(con)) / 3600))
+
+def _to_human_form(date:struct_time):
+    return strftime("%d.%m.%y", date)
+
+def _analyze(times:dict):
+    result = {}
+
+    all_days = _get_all_days_on_dict(times)
+    for days in all_days:
+        connects_on_day = _get_date_of_day(list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times['connects'])), days)
+        disconnects_on_day = _get_date_of_day(list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times['discovers'])), days)
+
+        connects_on_day, disconnects_on_day = _rm_repit_times(
+            connects_on_day,
+            disconnects_on_day
+        )
+
+        if len(disconnects_on_day) == 0:
+            if len(connects_on_day) != 0:
+                result[_to_human_form(days)] = _not_disconnected(_get_minimal_st(connects_on_day))
+            else:
+                result[_to_human_form(days)] = 0
+        elif len(connects_on_day) == 0:
+            if len(disconnects_on_day) != 0:
+                result[_to_human_form(days)] = _not_connected(_get_maximal_st(disconnects_on_day))
+            else:
+                result[_to_human_form(days)] = 0
+        else:
+            previously_connect = _get_minimal_st(connects_on_day)
+            latest_disconnect = _get_maximal_st(disconnects_on_day)
+
+            result[_to_human_form(days)] = _calculate_time(previously_connect, latest_disconnect)
+    return result
 
 class Getter:
 
@@ -123,43 +253,7 @@ class Getter:
 
 
     def _calculate_connected_time(self, data:dict) -> dict:
-
-        times = {}
-        #print(data)
-        connects = []
-        discovers = []
-
-        for con in data['connects']:
-            connects.append(strptime(con, '%H:%M %d.%m.%y'))
-        for disc in data['discovers']:
-            discovers.append(strptime(disc, '%H:%M %d.%m.%y'))
-
-        if len(connects) == 0:
-            return {}
-
-        for con in connects:
-            try:
-                filtered_discovers = sorted(list(
-                        filter(
-                            lambda x: ((con.tm_mday == x.tm_mday) and (con.tm_mon == x.tm_mon) and (con.tm_year == x.tm_year)),
-                            discovers
-                        )
-                    ),
-                    key=lambda x: (x.tm_hour * 3600) + (x.tm_min * 60) + (x.tm_sec)
-                )[-1]
-            except Exception as ex:
-                #print(ex)
-                filtered_discovers = 0
-            if filtered_discovers == 0:
-                times[strftime("%d.%m.%y", con)] = self._calc_times(con)
-                continue
-            if times.get(strftime("%d.%m.%y", con)) is not None:
-                new = self._calculate_connected(con, filtered_discovers)
-                if new > times[strftime("%d.%m.%y", con)]:
-                    times[strftime("%d.%m.%y", con)] = new
-                    continue
-            times[strftime("%d.%m.%y", con)] = self._calculate_connected(con, filtered_discovers)
-        return times
+        return _analyze(data)
 
     def calculate_times(self, parsed_log:dict) -> dict:
         '''
