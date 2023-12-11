@@ -146,6 +146,7 @@ class Getter:
         self._tested = tested
         self._filename = filename
         self._test_filename = 'test_files/test_log.txt'
+        self._pattern = re.compile(r"\[\w\] ")
 
         if not exists(self._test_filename if self._tested else self._filename):
             with open(self._test_filename if self._tested else self._filename, 'w', encoding='utf-8') as file:
@@ -168,36 +169,39 @@ class Getter:
         else:
             return False
 
-    def parse_string(self, string:str) -> dict:
-        data = {}
-        lines = string.splitlines()
-        for line in lines:
-            if line.startswith('<14>'):
-                line = line[4:]
-            splitted_line = line.split()
-            mac = splitted_line[-1][:-1]
-            if not self._is_mac_address(mac):
-                continue
-            time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
+    # def parse_string(self, string:str) -> dict:
+    #     data = {}
+    #     lines = string.splitlines()
+    #     for line in lines:
+    #         if line.startswith('<14>'):
+    #             line = line[4:]
+    #         splitted_line = line.split()
+    #         mac = splitted_line[-1][:-1]
+    #         if not self._is_mac_address(mac):
+    #             continue
+    #         time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
+    #
+    #         if data.get(mac) is None:
+    #             data[mac] = {
+    #                 'discovers': [],
+    #                 'connects': []
+    #             }
+    #
+    #         if "DHCPREQUEST" in line:
+    #             data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
+    #         elif "DHCPDISCOVER" in line:
+    #             data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+    #         elif "deauthenticated" in line:
+    #             mac = line.split()[7][4:-1]
+    #             if not self._is_mac_address(mac):
+    #                 continue
+    #             data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+    #         else:
+    #             continue
+    #     return data
 
-            if data.get(mac) is None:
-                data[mac] = {
-                    'discovers': [],
-                    'connects': []
-                }
-
-            if "DHCPREQUEST" in line:
-                data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
-            elif "DHCPDISCOVER" in line:
-                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
-            elif "deauthenticated" in line:
-                mac = line.split()[7][4:-1]
-                if not self._is_mac_address(mac):
-                    continue
-                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
-            else:
-                continue
-        return data
+    def format_system_log(self, line:str) -> str:
+        return self._pattern.sub("<14>", line)
 
     def parse_file(self) -> dict:
         '''
@@ -215,6 +219,7 @@ class Getter:
         for line in lines:
             if line.startswith('<14>'):
                 line = line[4:]
+            # elif re.match()
             splitted_line = line.split()
             try:
                 time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
