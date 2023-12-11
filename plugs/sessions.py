@@ -146,6 +146,7 @@ class Getter:
         self._tested = tested
         self._filename = filename
         self._test_filename = 'test_files/test_log.txt'
+        self._pattern = re.compile(r"\[\w\] ")
 
         if not exists(self._test_filename if self._tested else self._filename):
             with open(self._test_filename if self._tested else self._filename, 'w', encoding='utf-8') as file:
@@ -157,9 +158,9 @@ class Getter:
         #print(line)
         return line
 
-    def _calc_times(self, con:struct_time) -> int:
-        disc = strptime("19:00 " + strftime("%d.%m.%y", con), "%H:%M %d.%m.%y")
-        return ((con.tm_hour * 60 * 60) + (con.tm_min * 60) + (con.tm_sec)) // ((disc.tm_hour * 60 * 60) + (disc.tm_min * 60) + (disc.tm_sec))
+    # def _calc_times(self, con:struct_time) -> int:
+    #     disc = strptime("19:00 " + strftime("%d.%m.%y", con), "%H:%M %d.%m.%y")
+    #     return ((con.tm_hour * 60 * 60) + (con.tm_min * 60) + (con.tm_sec)) // ((disc.tm_hour * 60 * 60) + (disc.tm_min * 60) + (disc.tm_sec))
 
     def _is_mac_address(self, string:str) -> bool:
         pattern = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
@@ -168,36 +169,39 @@ class Getter:
         else:
             return False
 
-    def parse_string(self, string:str) -> dict:
-        data = {}
-        lines = string.splitlines()
-        for line in lines:
-            if line.startswith('<14>'):
-                line = line[4:]
-            splitted_line = line.split()
-            mac = splitted_line[-1][:-1]
-            if not self._is_mac_address(mac):
-                continue
-            time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
+    # def parse_string(self, string:str) -> dict:
+    #     data = {}
+    #     lines = string.splitlines()
+    #     for line in lines:
+    #         if line.startswith('<14>'):
+    #             line = line[4:]
+    #         splitted_line = line.split()
+    #         mac = splitted_line[-1][:-1]
+    #         if not self._is_mac_address(mac):
+    #             continue
+    #         time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
+    #
+    #         if data.get(mac) is None:
+    #             data[mac] = {
+    #                 'discovers': [],
+    #                 'connects': []
+    #             }
+    #
+    #         if "DHCPREQUEST" in line:
+    #             data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
+    #         elif "DHCPDISCOVER" in line:
+    #             data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+    #         elif "deauthenticated" in line:
+    #             mac = line.split()[7][4:-1]
+    #             if not self._is_mac_address(mac):
+    #                 continue
+    #             data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+    #         else:
+    #             continue
+    #     return data
 
-            if data.get(mac) is None:
-                data[mac] = {
-                    'discovers': [],
-                    'connects': []
-                }
-
-            if "DHCPREQUEST" in line:
-                data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
-            elif "DHCPDISCOVER" in line:
-                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
-            elif "deauthenticated" in line:
-                mac = line.split()[7][4:-1]
-                if not self._is_mac_address(mac):
-                    continue
-                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
-            else:
-                continue
-        return data
+    def _format_system_log(self, line:str) -> str:
+        return self._pattern.sub("<14>", line)
 
     def parse_file(self) -> dict:
         '''
@@ -215,6 +219,8 @@ class Getter:
         for line in lines:
             if line.startswith('<14>'):
                 line = line[4:]
+            elif line.startswith('[') and line.split()[0].endswith(']'):
+                line = self._format_system_log(line)
             splitted_line = line.split()
             try:
                 time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
@@ -223,11 +229,8 @@ class Getter:
                 continue
             if not self._is_mac_address(mac):
                 if "deauthenticated" in line:
-                    #print(line)
                     mac = self._get_STA(line)
-                    #print(self._is_mac_address(mac))
                     if not self._is_mac_address(mac):
-                        #print(mac)
                         continue
                     if data.get(mac) is None:
                         data[mac] = {
@@ -271,8 +274,3 @@ class Getter:
         for mac, data in parsed_log.items():
             to_ret[mac] = _analyze(data)
         return to_ret
-
-    def _calculate_connected(self, con:struct_time, filtered_discovers:struct_time) -> int:
-        #print(f"Connect: {con}\nDisconnect: {filtered_discovers}")
-        _t = ((filtered_discovers.tm_hour * 60 * 60) + (filtered_discovers.tm_min * 60) + (filtered_discovers.tm_sec)) - ((con.tm_hour * 3600) + (con.tm_min * 60) + (con.tm_sec))
-        return (_t if _t > 0 else 0) // (60 * 60)
