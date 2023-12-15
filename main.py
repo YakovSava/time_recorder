@@ -1,7 +1,7 @@
 from time import sleep
 from threading import Thread
 from plugs import Converter, Book, Getter,\
-    SimpleSyslogServer, GDrive
+    SimpleSyslogServer, GDrive, TelnetInfo
 from plugs.google_connector import GDriveTest
 
 convert = Converter()
@@ -12,6 +12,8 @@ syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
 gdr = GDriveTest()
 exc = Book(filename=config['excel_file'], cmp=convert)
 get = Getter(filename=config['log_name'])
+tel = TelnetInfo()
+
 
 def get_log(filelog:str) -> str:
     with open(filelog, 'r', encoding='utf-8') as file:
@@ -36,7 +38,7 @@ def load() -> None:
             config = convert.load_conf()
         else:
             res = gdr.update_loaded_file(file_id=config['file_id'], filename=filename)
-            #print("File upload - ", res)
+            print("File upload - ", res)
             if not res:
                 result = gdr.repair(file_id=config['file_id'], filename=filename)
                 if result:
@@ -45,7 +47,8 @@ def load() -> None:
                     convert.update_conf(config)
 
                     config = convert.load_conf()
-        gdr.test_check_trash()
+        # gdr.test_check_trash()
+        tel.save_log()
 
         sleep(config['gap'])
 
