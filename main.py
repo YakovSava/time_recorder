@@ -36,7 +36,7 @@ def load() -> None:
             config = convert.load_conf()
         else:
             res = gdr.update_loaded_file(file_id=config['file_id'], filename=filename)
-            #print("File upload - ", res)
+            print("File upload - ", res)
             if not res:
                 result = gdr.repair(file_id=config['file_id'], filename=filename)
                 if result:
