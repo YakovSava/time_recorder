@@ -36,7 +36,30 @@ class SimpleSyslogServer:
 class TelnetInfo:
 
     def __init__(self, client=Telnet):
-        self._client = client('192.168.1.0', 23)
+        self._client = client('192.168.1.1', 23)
+        self._is_authorize = False
 
+    def write(self, command:str) -> None:
+        self._client.write((command+'\n').encode())
+
+    def read_until(self, until:str) -> bytes:
+        return self._client.read_until(until.encode())
 
     def _authorize(self):
+        self.read_until('Username')
+        self.write('admin')
+        self.read_until('Password')
+        self.write('admin')
+        self.read_until('>')
+
+    def get_log(self) -> str:
+        if self._is_authorize:
+            self.write('show log')
+            return self.read_until('>').decode()
+        else:
+            self._authorize()
+            return self.get_log()
+
+    def save_log(self):
+        with open('systemlog.log', 'a', encoding='utf-8') as file:
+            file.write(self.get_log())
