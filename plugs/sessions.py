@@ -146,7 +146,7 @@ class Getter:
         self._tested = tested
         self._filename = filename
         self._test_filename = 'test_files/test_log.txt'
-        self._pattern = re.compile(r"\[\w\] ")
+        self._pattern = re.compile(r"\[A-Z] ")
 
         if not exists(self._test_filename if self._tested else self._filename):
             with open(self._test_filename if self._tested else self._filename, 'w', encoding='utf-8') as file:
@@ -220,7 +220,8 @@ class Getter:
             if line.startswith('<14>'):
                 line = line[4:]
             elif line.startswith('[') and line.split()[0].endswith(']'):
-                line = self._format_system_log(line)
+                #line = self._format_system_log(line)
+                raise
             splitted_line = line.split()
             try:
                 time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
