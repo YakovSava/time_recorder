@@ -40,17 +40,18 @@ class TelnetInfo:
         self._is_authorize = False
 
     def write(self, command:str) -> None:
-        self._client.write((command+'\n').encode())
+        self._client.write(f'{command}\n'.encode())
 
     def read_until(self, until:str) -> bytes:
         return self._client.read_until(until.encode())
 
     def _authorize(self):
-        self.read_until('Username')
+        self.read_until('Login')
         self.write('admin')
         self.read_until('Password')
         self.write('admin')
         self.read_until('>')
+        self._is_authorize = True
 
     def get_log(self) -> str:
         if self._is_authorize:

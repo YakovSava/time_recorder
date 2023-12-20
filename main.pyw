@@ -1,7 +1,8 @@
+from string import ascii_uppercase as asup
 from time import sleep
 from threading import Thread
 from plugs import Converter, Book, Getter,\
-    SimpleSyslogServer, GDrive
+    SimpleSyslogServer, GDrive, TelnetInfo
 from plugs.google_connector import GDriveTest
 
 convert = Converter()
@@ -12,16 +13,34 @@ gdr = GDrive()
 #gdr = GDriveTest()
 exc = Book(filename=config['excel_file'], cmp=convert)
 get = Getter(filename=config['log_name'])
+tel = TelnetInfo()
 
+def _repl_normal(txt:str) -> str:
+    for wor in asup:
+        if txt.startswith(wor+' '):
+            txt = '<14>'+txt[2:]
+        else:
+            txt = '<14>'+txt[4:]
+    return txt.replace('[','').replace(']','')+"\n"
+    
 def get_log(filelog:str) -> str:
     with open(filelog, 'r', encoding='utf-8') as file:
         return file.read()
+
+def reformat_log(filelog:str) -> None:
+    loglines = get_log(filelog).splitlines()
+    loglines = list(map(
+        _repl_normal, loglines
+    ))
+    with open(filelog, 'w', encoding='utf-8') as file:
+        file.write("".join(loglines))
 
 def load() -> None:
     global config
     print('Loader func started!')
     while True:
         config = convert.load_conf()
+        reformat_log(config['log_name'])
         parsed_ln = get.parse_file()
         # with open('test_files/test_log.txt', 'r', encoding='utf-8') as file:
         #    parsed_ln = get.parse_string(file.read())
@@ -45,7 +64,8 @@ def load() -> None:
                     convert.update_conf(config)
 
                     config = convert.load_conf()
-        gdr.test_check_trash()
+        # gdr.test_check_trash()
+        tel.save_log()
 
         sleep(config['gap'])
 

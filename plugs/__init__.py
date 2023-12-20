@@ -11,5 +11,6 @@ __ALL__ = (
     SimpleSyslogServer,
     Timer,
     GDrive,
-    Converter
+    Converter,
+TelnetInfo
 )
