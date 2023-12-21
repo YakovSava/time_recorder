@@ -16,12 +16,10 @@ get = Getter(filename=config['log_name'])
 tel = TelnetInfo()
 
 def _repl_normal(txt:str) -> str:
-    for wor in asup:
-        if txt.startswith(wor+' '):
-            txt = '<14>'+txt[2:]
-        else:
-            txt = '<14>'+txt[4:]
-    return txt.replace('[','').replace(']','')+"\n"
+    for word in asup:
+        txt = txt.replace(f'{word} ', '<14>').replace(f'[{word}] ', '<14>')
+    t = txt.replace('[', '').replace(']','').replace('                    ', '')
+    return t if t.endswith('\n') else t+'\n'
     
 def get_log(filelog:str) -> str:
     with open(filelog, 'r', encoding='utf-8') as file:

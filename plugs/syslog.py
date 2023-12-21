@@ -1,5 +1,6 @@
 import socket
 
+from time import sleep
 from telnetlib import Telnet
 
 def write(filename, msg):
@@ -37,6 +38,7 @@ class TelnetInfo:
 
     def __init__(self, client=Telnet):
         self._client = client('192.168.1.1', 23)
+        #self._client.set_window_size(65535, 1000)
         self._is_authorize = False
 
     def write(self, command:str) -> None:
@@ -56,11 +58,13 @@ class TelnetInfo:
     def get_log(self) -> str:
         if self._is_authorize:
             self.write('show log')
-            return self.read_until('>').decode()
+            sleep(15)
+            return self._client.read_very_eager().decode('utf-8')
         else:
             self._authorize()
             return self.get_log()
 
     def save_log(self):
         with open('systemlog.log', 'a', encoding='utf-8') as file:
-            file.write(self.get_log())
+            file.write(self.get_log()[4:-1])
+            #raise
