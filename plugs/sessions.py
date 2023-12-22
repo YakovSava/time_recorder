@@ -222,6 +222,8 @@ class Getter:
             elif line.startswith('[') and line.split()[0].endswith(']'):
                 #line = self._format_system_log(line)
                 raise
+            else:
+                continue
             splitted_line = line.split()
             try:
                 time = strptime(" ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")

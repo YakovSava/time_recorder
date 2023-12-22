@@ -12,8 +12,8 @@ def func(*args, **kwargs):
 
 def check_book():
     try:
-        book = Book(filename='tables/test.xlsx')
-        get = Getter(filename='test_files/test_log.txt', tested=False)
+        book = Book(filename='../tables/test.xlsx')
+        get = Getter(filename='test_log.txt', tested=False)
 
         parsed_ln = get.parse_file()
         calculated_info = get.calculate_times(parsed_ln)
@@ -47,7 +47,7 @@ def check_filesyslog():
 def check_gdrive():
     try:
         gd = GDrive()
-        gd.send_exc_file(filename='test_files/test_log.txt')
+        gd.send_exc_file(filename='test_log.txt')
     except Exception as ex:
         raise ex
     else:
