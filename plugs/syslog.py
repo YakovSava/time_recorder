@@ -4,13 +4,15 @@ from time import sleep
 from telnetlib import Telnet
 from paramiko import SSHClient, AutoAddPolicy
 
+
 def write(filename, msg):
     with open(filename, 'a', encoding='utf-8') as file:
-        file.write(msg+'\n')
+        file.write(msg + '\n')
+
 
 class SimpleSyslogServer:
 
-    def __init__(self, filename:str=None, ip:str=None):
+    def __init__(self, filename: str=None, ip: str=None):
         if not (filename and ip):
             raise
         self._ip = ip
@@ -44,10 +46,10 @@ class TelnetInfo:
         #self._client.set_window_size(65535, 1000)
         self._is_authorize = False
 
-    def write(self, command:str) -> None:
+    def write(self, command: str) -> None:
         self._client.write(f'{command}\n'.encode())
 
-    def read_until(self, until:str) -> bytes:
+    def read_until(self, until: str) -> bytes:
         return self._client.read_until(until.encode())
 
     def _authorize(self):
@@ -70,12 +72,12 @@ class TelnetInfo:
     def save_log(self):
         with open('systemlog.log', 'a', encoding='utf-8') as file:
             file.write(self.get_log()[4:-1])
-            #raise
+            # raise
 
 
 class SSHLogger:
 
-    def __init__(self, host:str='192.168.1.1', user:str='admin', password:str='admin'):
+    def __init__(self, host: str='192.168.1.1', user: str='admin', password: str='admin'):
         self._client = SSHClient()
         self._client.set_missing_host_key_policy(AutoAddPolicy())
         self._client.connect(

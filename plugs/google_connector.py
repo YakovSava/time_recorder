@@ -1,6 +1,7 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
+
 class GDrive:
 
     def __init__(self):
@@ -8,13 +9,13 @@ class GDrive:
         gauth.LocalWebserverAuth()
         self._drive = GoogleDrive(gauth)
 
-    def load_exc_file(self, filename:str="table.xlsx") -> int:
+    def load_exc_file(self, filename: str="table.xlsx") -> int:
         file = self._drive.CreateFile({'title': filename})
         file.SetContentFile(filename)
         file.Upload()
         return file['id']
 
-    def update_loaded_file(self, file_id:str=None, filename:str="table.xlsx") -> bool:
+    def update_loaded_file(self, file_id: str=None, filename: str="table.xlsx") -> bool:
         if file_id is None:
             raise
         try:
@@ -22,7 +23,7 @@ class GDrive:
             file.SetContentFile(filename)
             file.Upload()
         except Exception as ex:
-            #print(ex)
+            # print(ex)
             return False
         else:
             trs = self._check_file_in_trash(file_id=file_id)
@@ -30,14 +31,15 @@ class GDrive:
             return True and (not trs)
 
     def test_check_trash(self):
-        print('Files in trash - ', list(map(lambda x: x['id'], self._drive.ListFile({'q': "trashed=true"}).GetList())))
+        print('Files in trash - ',
+              list(map(lambda x: x['id'], self._drive.ListFile({'q': "trashed=true"}).GetList())))
 
-    def _check_file_in_trash(self, file_id:str=None) -> bool:
+    def _check_file_in_trash(self, file_id: str=None) -> bool:
         if file_id is None:
             raise
         return file_id in list(map(lambda x: x['id'], self._drive.ListFile({'q': "trashed=true"}).GetList()))
 
-    def _untrash(self, file_id:str=None) -> bool:
+    def _untrash(self, file_id: str=None) -> bool:
         try:
             file = self._drive.CreateFile({'id': file_id})
             file.UnTrash()
@@ -47,7 +49,7 @@ class GDrive:
         except:
             return False
 
-    def repair(self, file_id:str=None, filename:str="table.xlsx") -> None or str:
+    def repair(self, file_id: str=None, filename: str="table.xlsx") -> None or str:
         if not file_id:
             raise
         tmp = self._untrash(file_id)
@@ -69,20 +71,20 @@ class GDriveTest:
     def __init__(self):
         ...
 
-    def load_exc_file(self, filename:str="table.xlsx") -> int:
+    def load_exc_file(self, filename: str="table.xlsx") -> int:
         ...
 
-    def update_loaded_file(self, file_id:str=None, filename:str="table.xlsx") -> bool:
+    def update_loaded_file(self, file_id: str=None, filename: str="table.xlsx") -> bool:
         ...
 
     def test_check_trash(self):
         ...
 
-    def _check_file_in_trash(self, file_id:str=None) -> bool:
+    def _check_file_in_trash(self, file_id: str=None) -> bool:
         ...
 
-    def _untrash(self, file_id:str=None) -> bool:
+    def _untrash(self, file_id: str=None) -> bool:
         ...
 
-    def repair(self, file_id:str=None, filename:str="table.xlsx") -> None or str:
+    def repair(self, file_id: str=None, filename: str="table.xlsx") -> None or str:
         ...
