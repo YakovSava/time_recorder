@@ -1,7 +1,7 @@
 from .table import Book
 from .sessions import Getter
 from .timer import Timer
-from .syslog import SimpleSyslogServer, TelnetInfo
+from .syslog import SimpleSyslogServer, SSHLogger, TelnetInfo
 from .google_connector import GDrive
 from .converter import Converter
 
@@ -12,5 +12,6 @@ __ALL__ = (
     Timer,
     GDrive,
     Converter,
-TelnetInfo
+    SSHLogger,
+    TelnetInfo
 )

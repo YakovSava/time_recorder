@@ -2,6 +2,7 @@ import socket
 
 from time import sleep
 from telnetlib import Telnet
+from paramiko import SSHClient, AutoAddPolicy
 
 def write(filename, msg):
     with open(filename, 'a', encoding='utf-8') as file:
@@ -34,6 +35,8 @@ class SimpleSyslogServer:
             write(self._filename, message)
 
 
+# Please, do not use!
+# This class will no longer be used
 class TelnetInfo:
 
     def __init__(self, client=Telnet):
@@ -68,3 +71,24 @@ class TelnetInfo:
         with open('systemlog.log', 'a', encoding='utf-8') as file:
             file.write(self.get_log()[4:-1])
             #raise
+
+
+class SSHLogger:
+
+    def __init__(self, host:str='192.168.1.1', user:str='admin', password:str='admin'):
+        self._client = SSHClient()
+        self._client.set_missing_host_key_policy(AutoAddPolicy())
+        self._client.connect(
+            hostname=host,
+            username=user,
+            password=password,
+            port=22
+        )
+
+    def get_log(self) -> str:
+        stdin, stdout, stderr = self._client.exec_command('show log')
+        return (stdout.read() + stderr.read()).decode('utf-8')
+
+    def save_log(self):
+        with open('systemlog.log', 'a', encoding='utf-8') as file:
+            file.write(self.get_log()[4:-1])
