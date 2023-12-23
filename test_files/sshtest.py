@@ -19,7 +19,7 @@ while True:
         cmd = input('< ')
         stdin, stdout, stderr = client.exec_command(cmd)
         if 'sudo' in cmd:
-            stdin.write(passw+'\n')
+            stdin.write(passw + '\n')
             stdin.flush()
             sleep(1)
         data = stdout.read() + stderr.read()

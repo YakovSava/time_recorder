@@ -15,23 +15,28 @@ exc = Book(filename=config['excel_file'], cmp=convert)
 get = Getter(filename=config['log_name'])
 ssh = SSHLogger()
 
-def _repl_normal(txt:str) -> str:
+
+def _repl_normal(txt: str) -> str:
     for word in asup:
         txt = txt.replace(f'{word} ', '<14>').replace(f'[{word}] ', '<14>')
-    t = txt.replace('[', '').replace(']','').replace('                    ', '')
-    return t if t.endswith('\n') else t+'\n'
-    
-def get_log(filelog:str) -> str:
+    t = txt.replace('[', '').replace(']', '').replace(
+        '                    ', '')
+    return t if t.endswith('\n') else t + '\n'
+
+
+def get_log(filelog: str) -> str:
     with open(filelog, 'r', encoding='utf-8') as file:
         return file.read()
 
-def reformat_log(filelog:str) -> None:
+
+def reformat_log(filelog: str) -> None:
     loglines = get_log(filelog).splitlines()
     loglines = list(map(
         _repl_normal, loglines
     ))
     with open(filelog, 'w', encoding='utf-8') as file:
         file.write("".join(loglines))
+
 
 def load() -> None:
     global config
@@ -52,10 +57,12 @@ def load() -> None:
 
             config = convert.load_conf()
         else:
-            res = gdr.update_loaded_file(file_id=config['file_id'], filename=filename)
+            res = gdr.update_loaded_file(
+                file_id=config['file_id'], filename=filename)
             print("File upload - ", res)
             if not res:
-                result = gdr.repair(file_id=config['file_id'], filename=filename)
+                result = gdr.repair(
+                    file_id=config['file_id'], filename=filename)
                 if result:
                     file_id = gdr.load_exc_file(filename=filename)
                     config['file_id'] = file_id
@@ -66,6 +73,7 @@ def load() -> None:
         ssh.save_log()
 
         sleep(config['gap'])
+
 
 if __name__ == '__main__':
     pr = Thread(target=syslog.start)

@@ -10,6 +10,7 @@ def func(*args, **kwargs):
     else:
         print('Hello world!')
 
+
 def check_book():
     try:
         book = Book(filename='../tables/test.xlsx')
@@ -24,9 +25,11 @@ def check_book():
     else:
         return 'Test pass'
 
+
 def check_syslog():
     try:
-        filelogserv = SimpleSyslogServer(ip='192.168.1.146', filename='test.log')
+        filelogserv = SimpleSyslogServer(
+            ip='192.168.1.146', filename='test.log')
 
         filelogserv.test_listen()
     except Exception as ex:
@@ -34,15 +37,18 @@ def check_syslog():
     else:
         return 'Test pass'
 
+
 def check_filesyslog():
     try:
-        filelogserv = SimpleSyslogServer(ip='192.168.1.146', filename='test.log')
+        filelogserv = SimpleSyslogServer(
+            ip='192.168.1.146', filename='test.log')
 
         filelogserv.start()
     except Exception as ex:
         raise ex
     else:
         return 'Test pass'
+
 
 def check_gdrive():
     try:
@@ -52,6 +58,7 @@ def check_gdrive():
         raise ex
     else:
         return 'Test pass'
+
 
 def check_timer():
     try:
@@ -67,6 +74,7 @@ def check_timer():
         raise ex
     else:
         return 'Test pass'
+
 
 if __name__ == '__main__':
     print(check_book())
