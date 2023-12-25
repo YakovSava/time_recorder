@@ -10,11 +10,11 @@ convert = Converter()
 config = convert.load_conf()
 
 syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
-gdr = GDrive()
-#gdr = GDriveTest()
+#gdr = GDrive()
+gdr = GDriveTest()
 exc = Book(filename=config['excel_file'], cmp=convert)
 get = Getter(filename=config['log_name'])
-ssh = SSHLogger()
+#ssh = SSHLogger()
 
 def _repl_log(conf):
     with open(conf['log_name'], 'r', encoding='utf-8') as file:
@@ -84,7 +84,7 @@ def load() -> None:
 
                     config = convert.load_conf()
         # gdr.test_check_trash()
-        ssh.save_log()
+        #ssh.save_log()
 
         sleep(config['gap'])
 

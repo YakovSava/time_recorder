@@ -302,4 +302,5 @@ class Getter:
         to_ret = {}
         for mac, data in parsed_log.items():
             to_ret[mac] = _analyze(data)
+            print(to_ret[mac])
         return to_ret
