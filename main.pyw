@@ -1,20 +1,33 @@
-from string import ascii_uppercase as asup
 from time import sleep
 from threading import Thread
 from plugs import Converter, Book, Getter,\
     SimpleSyslogServer, GDrive, SSHLogger
 from plugs.google_connector import GDriveTest
 
+asup = 'EWI'
+
 convert = Converter()
 config = convert.load_conf()
 
 syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
-gdr = GDrive()
-#gdr = GDriveTest()
+#gdr = GDrive()
+gdr = GDriveTest()
 exc = Book(filename=config['excel_file'], cmp=convert)
 get = Getter(filename=config['log_name'])
-ssh = SSHLogger()
+#ssh = SSHLogger()
 
+def _repl_log(conf):
+    with open(conf['log_name'], 'r', encoding='utf-8') as file:
+        parts = file.read().splitlines()
+    fixed = []
+
+    for part in parts:
+        if part.startswith('<14>') or not fixed:
+            fixed.append(part)
+        else:
+            fixed[-1] += ' '+part
+    with open(conf['log_name'], 'w', encoding='utf-8') as file:
+        file.write('\n'.join(fixed))
 
 def _repl_normal(txt: str) -> str:
     for word in asup:
@@ -44,6 +57,7 @@ def load() -> None:
     while True:
         config = convert.load_conf()
         reformat_log(config['log_name'])
+        _repl_log(config)
         parsed_ln = get.parse_file()
         # with open('test_files/test_log.txt', 'r', encoding='utf-8') as file:
         #    parsed_ln = get.parse_string(file.read())
@@ -70,7 +84,7 @@ def load() -> None:
 
                     config = convert.load_conf()
         # gdr.test_check_trash()
-        ssh.save_log()
+        #ssh.save_log()
 
         sleep(config['gap'])
 
