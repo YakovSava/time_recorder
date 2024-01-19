@@ -9,7 +9,7 @@ class GDrive:
         gauth.LocalWebserverAuth()
         self._drive = GoogleDrive(gauth)
 
-    def load_exc_file(self, filename: str="table.xlsx") -> int:
+    def load_file(self, filename: str="table.xlsx") -> int:
         file = self._drive.CreateFile({'title': filename})
         file.SetContentFile(filename)
         file.Upload()
@@ -63,7 +63,7 @@ class GDrive:
             return
         else:
             #print("File reloaded")
-            return self.load_exc_file(filename=filename)
+            return self.load_file(filename=filename)
 
 
 class GDriveTest:
@@ -71,7 +71,7 @@ class GDriveTest:
     def __init__(self):
         ...
 
-    def load_exc_file(self, filename: str="table.xlsx") -> int:
+    def load_file(self, filename: str="table.xlsx") -> int:
         ...
 
     def update_loaded_file(self, file_id: str=None, filename: str="table.xlsx") -> bool:

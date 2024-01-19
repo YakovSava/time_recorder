@@ -9,7 +9,7 @@ asup = 'EWI'
 convert = Converter()
 config = convert.load_conf()
 
-syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
+# syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
 #gdr = GDrive()
 gdr = GDriveTest()
 exc = Book(filename=config['excel_file'], cmp=convert)
@@ -44,7 +44,7 @@ def get_log(filelog: str) -> str:
 
 def reformat_log(filelog: str) -> None:
     loglines = get_log(filelog).splitlines()
-    loglines = list(map(
+    loglines =  list(map(
         _repl_normal, loglines
     ))
     with open(filelog, 'w', encoding='utf-8') as file:
@@ -59,13 +59,11 @@ def load() -> None:
         reformat_log(config['log_name'])
         _repl_log(config)
         parsed_ln = get.parse_file()
-        # with open('test_files/test_log.txt', 'r', encoding='utf-8') as file:
-        #    parsed_ln = get.parse_string(file.read())
         calculated_info = get.calculate_times(parsed_ln)
 
         filename = exc.save_xlsx(calculated_info)
         if not config['file_id']:
-            file_id = gdr.load_exc_file(filename=filename)
+            file_id = gdr.load_file(filename=filename)
             config['file_id'] = file_id
             convert.update_conf(config)
 
@@ -78,19 +76,16 @@ def load() -> None:
                 result = gdr.repair(
                     file_id=config['file_id'], filename=filename)
                 if result:
-                    file_id = gdr.load_exc_file(filename=filename)
+                    file_id = gdr.load_file(filename=filename)
                     config['file_id'] = file_id
                     convert.update_conf(config)
 
                     config = convert.load_conf()
-        # gdr.test_check_trash()
-        #ssh.save_log()
+        if not config['log_file_id']:
+            pass
 
         sleep(config['gap'])
 
 
 if __name__ == '__main__':
-    pr = Thread(target=syslog.start)
-    pr.start()
-    pr = Thread(target=load)
-    pr.start()
+    load()
