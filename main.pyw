@@ -71,7 +71,7 @@ def reformat_log(filelog: str) -> None:
 
 
 def load() -> None:
-    log.write('Запуск загрузчика')
+    log.write('Запуск загрузчика\n')
     global config
     print('Loader func started!')
     while True:
@@ -155,7 +155,7 @@ def load() -> None:
 
         #ssh.save_log()
 
-        log.write('Цикл был завершён. Ожидание...')
+        log.write('Цикл был завершён. Ожидание...\n')
         sleep(config['gap'])
 
 
