@@ -4,6 +4,7 @@ from .timer import Timer
 from .syslog import SimpleSyslogServer, SSHLogger, TelnetInfo
 from .google_connector import GDrive
 from .converter import Converter
+from .logger import Logger
 
 __ALL__ = (
     Book,
@@ -13,5 +14,6 @@ __ALL__ = (
     GDrive,
     Converter,
     SSHLogger,
-    TelnetInfo
+    TelnetInfo,
+    Logger
 )
