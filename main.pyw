@@ -1,9 +1,9 @@
 from time import sleep
-from threading import Thread
+#from threading import Thread
 from plugs import Converter, Book, Getter,\
     SimpleSyslogServer, GDrive, SSHLogger,\
     Logger
-from plugs.google_connector import GDriveTest
+#from plugs.google_connector import GDriveTest
 
 asup = 'EWI'
 
@@ -15,17 +15,16 @@ log.write('Конфиг загружен')
 log.write('Дескриптор логгера запущен')
 
 
-
-# syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip'])
+#syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip']) # Not used!
 log.write('Запуск дескриптора Google Drive')
-#gdr = GDrive()
-gdr = GDriveTest()
+gdr = GDrive()
+#gdr = GDriveTest()
 log.write('Запуск дескриптора Excel')
 exc = Book(filename=config['excel_file'], cmp=convert)
 log.write('Запуск дескриптора получения логов')
 get = Getter(filename=config['log_name'])
 log.write('Запуск SSH дескриптора')
-#ssh = SSHLogger()
+ssh = SSHLogger()
 
 def _repl_log(conf):
     log.write('Запуск функции преобразования логов')
@@ -189,7 +188,7 @@ def load() -> None:
         log.write("Загрузка лога роутера")
 
         log.write('Сохранение лога с SSH сервера')
-        #ssh.save_log()
+        ssh.save_log()
 
         log.write('Цикл был завершён. Ожидание...\n')
         sleep(config['gap'])
