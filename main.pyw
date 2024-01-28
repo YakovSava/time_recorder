@@ -10,7 +10,7 @@ asup = 'EWI'
 convert = Converter()
 config = convert.load_conf()
 
-log = Logger(filename=config['s_log_name'])
+log = Logger(filename=config['s_log_name'], debug=True)
 log.write('Конфиг загружен')
 log.write('Дескриптор логгера запущен')
 
@@ -117,7 +117,7 @@ def load() -> None:
                     config = convert.load_conf()
                 else:
                     log.write('Ошибка! Исправление требует вмешательство!')
-
+        log.write("Загрузка excel файла завершена")
         if not config['log_file_id']:
             log.write('ID лог файла не найдено. Начата загрузка')
 
@@ -151,8 +151,44 @@ def load() -> None:
                     config = convert.load_conf()
                 else:
                     log.write('Неизвестная ошибка! Требуется вмешательство человека')
-        log.write('Сохранение лога...')
+        log.write("Загрузка лога событий завершена")
 
+        if not config['router_log_file_id']:
+            log.write('ID лог файла не найдено. Начата загрузка')
+
+            file_id = gdr.load_file(filename=filename)
+            config['router_log_file_id'] = str(file_id)
+            convert.update_conf(config)
+            log.write('Загрузка завершена')
+
+            config = convert.load_conf()
+            log.write('Перезагрузка конфига')
+
+        else:
+            log.write('ID файла найден. Начинается обновление файла')
+
+            res = gdr.update_loaded_file(
+                file_id=config['router_log_file_id'], filename=filename)
+            log.write('Файл обновлён')
+
+            if not res:
+                result = gdr.repair(
+                    file_id=config['router_log_file_id'], filename=filename)
+                log.write('Файл не обновлён. Попытка автоматического исправления')
+
+                if result:
+                    log.write('Исправление применено')
+
+                    file_id = gdr.load_file(filename=filename)
+                    config['router_log_file_id'] = str(file_id)
+                    convert.update_conf(config)
+
+                    config = convert.load_conf()
+                else:
+                    log.write('Неизвестная ошибка! Требуется вмешательство человека')
+        log.write("Загрузка лога роутера")
+
+        log.write('Сохранение лога с SSH сервера')
         #ssh.save_log()
 
         log.write('Цикл был завершён. Ожидание...\n')
