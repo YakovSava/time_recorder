@@ -24,7 +24,7 @@ exc = Book(filename=config['excel_file'], cmp=convert)
 log.write('Запуск дескриптора получения логов')
 get = Getter(filename=config['log_name'])
 log.write('Запуск SSH дескриптора')
-ssh = SSHLogger()
+#ssh = SSHLogger()
 
 def _repl_log(conf):
     log.write('Запуск функции преобразования логов')
@@ -117,10 +117,11 @@ def load() -> None:
                 else:
                     log.write('Ошибка! Исправление требует вмешательство!')
         log.write("Загрузка excel файла завершена")
+
         if not config['log_file_id']:
             log.write('ID лог файла не найдено. Начата загрузка')
 
-            file_id = gdr.load_file(filename=filename)
+            file_id = gdr.load_file(filename="logged.log")
             config['log_file_id'] = str(file_id)
             convert.update_conf(config)
             log.write('Загрузка завершена')
@@ -132,18 +133,18 @@ def load() -> None:
             log.write('ID файла найден. Начинается обновление файла')
 
             res = gdr.update_loaded_file(
-                file_id=config['log_file_id'], filename=filename)
+                file_id=config['log_file_id'], filename="logged.log")
             log.write('Файл обновлён')
 
             if not res:
                 result = gdr.repair(
-                    file_id=config['log_file_id'], filename=filename)
+                    file_id=config['log_file_id'], filename="logged.log")
                 log.write('Файл не обновлён. Попытка автоматического исправления')
 
                 if result:
                     log.write('Исправление применено')
 
-                    file_id = gdr.load_file(filename=filename)
+                    file_id = gdr.load_file(filename="logged.log")
                     config['log_file_id'] = str(file_id)
                     convert.update_conf(config)
 
@@ -155,7 +156,7 @@ def load() -> None:
         if not config['router_log_file_id']:
             log.write('ID лог файла не найдено. Начата загрузка')
 
-            file_id = gdr.load_file(filename=filename)
+            file_id = gdr.load_file(filename="systemlog.log")
             config['router_log_file_id'] = str(file_id)
             convert.update_conf(config)
             log.write('Загрузка завершена')
@@ -167,18 +168,18 @@ def load() -> None:
             log.write('ID файла найден. Начинается обновление файла')
 
             res = gdr.update_loaded_file(
-                file_id=config['router_log_file_id'], filename=filename)
+                file_id=config['router_log_file_id'], filename="systemlog.log")
             log.write('Файл обновлён')
 
             if not res:
                 result = gdr.repair(
-                    file_id=config['router_log_file_id'], filename=filename)
+                    file_id=config['router_log_file_id'], filename="systemlog.log")
                 log.write('Файл не обновлён. Попытка автоматического исправления')
 
                 if result:
                     log.write('Исправление применено')
 
-                    file_id = gdr.load_file(filename=filename)
+                    file_id = gdr.load_file(filename="systemlog.log")
                     config['router_log_file_id'] = str(file_id)
                     convert.update_conf(config)
 
@@ -188,7 +189,7 @@ def load() -> None:
         log.write("Загрузка лога роутера")
 
         log.write('Сохранение лога с SSH сервера')
-        ssh.save_log()
+        #ssh.save_log()
 
         log.write('Цикл был завершён. Ожидание...\n')
         sleep(config['gap'])
