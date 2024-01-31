@@ -3,7 +3,7 @@ from time import sleep
 from plugs import Converter, Book, Getter,\
     SimpleSyslogServer, GDrive, SSHLogger,\
     Logger
-#from plugs.google_connector import GDriveTest
+from plugs.google_connector import GDriveTest
 
 asup = 'EWI'
 
@@ -17,8 +17,8 @@ log.write('Дескриптор логгера запущен')
 
 #syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip']) # Not used!
 log.write('Запуск дескриптора Google Drive')
-gdr = GDrive()
-#gdr = GDriveTest()
+#gdr = GDrive()
+gdr = GDriveTest()
 log.write('Запуск дескриптора Excel')
 exc = Book(filename=config['excel_file'], cmp=convert)
 log.write('Запуск дескриптора получения логов')

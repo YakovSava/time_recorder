@@ -81,7 +81,7 @@ def _get_all_days(dates: list[struct_time]) -> list[str]:
 #   return all_days
 
 
-def _not_disconnected(con: struct_time, this: bool=False) -> int:
+def _not_disconnected(con: struct_time, this: bool=False) -> float:
     if this:
         day_time = time() - mktime(con)
     else:
@@ -91,17 +91,17 @@ def _not_disconnected(con: struct_time, this: bool=False) -> int:
                 "%H:%M %d.%m.%y"
             )
         ) - mktime(con)
-    return abs(round(day_time / 3600))
+    return abs(round(day_time / 3600, 2))
 
 
-def _not_connected(disc: struct_time) -> int:
+def _not_connected(disc: struct_time) -> float:
     day_time = mktime(disc) - mktime(
         strptime(
             "9:00 " + strftime("%d.%m.%y", disc),
             "%H:%M %d.%m.%y"
         )
     )
-    return abs(round(day_time / 3600))
+    return abs(round(day_time / 3600, 2))
 
 
 def _get_all_days_on_dict(times: dict) -> list[struct_time]:
@@ -116,8 +116,8 @@ def _get_all_days_on_dict(times: dict) -> list[struct_time]:
     return list(map(lambda x: strptime(x, "%d.%m.%y"), time))
 
 
-def _calculate_time(con: struct_time, disc: struct_time) -> int:
-    return abs(round((mktime(disc) - mktime(con)) / 3600))
+def _calculate_time(con: struct_time, disc: struct_time) -> float:
+    return abs(round((mktime(disc) - mktime(con)) / 3600, 2))
 
 
 def _to_human_form(date: struct_time):
