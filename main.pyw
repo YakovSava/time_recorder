@@ -17,7 +17,7 @@ log.write('Дескриптор логгера запущен')
 
 #syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip']) # Not used!
 log.write('Запуск дескриптора Google Drive')
-gdr = GDrive()
+gdr = GDrive(service=True)
 #gdr = GDriveTest()
 log.write('Запуск дескриптора Excel')
 exc = Book(filename=config['excel_file'], cmp=convert)

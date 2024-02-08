@@ -6,3 +6,6 @@ setup.exe
 reposrt.xlsx
 systemlog.log
 credentials.txt
+service_secrets.json
+config.ini
+compare.ini
