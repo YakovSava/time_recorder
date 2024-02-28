@@ -3,7 +3,8 @@ __pycache__
 client_secrets.json
 Dist
 setup.exe
-reposrt.xlsx
+report.xlsx
+report1.xlsx
 systemlog.log
 credentials.txt
 service_secrets.json

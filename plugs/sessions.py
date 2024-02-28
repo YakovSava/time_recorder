@@ -1,8 +1,10 @@
 import re
+import datetime
 
 from os.path import exists
 from time import strptime, strftime, struct_time,\
     mktime, gmtime, time
+from pprint import pprint
 
 
 def _sort_st(sts: list[struct_time]) -> struct_time:
@@ -57,6 +59,30 @@ def _rm_repit_times(cons: list[struct_time], discs: list[struct_time]) -> list[l
     for disc in discs:
         if (disc not in disconnects) and (disc not in connects):
             disconnects.append(disc)
+
+    return [connects, disconnects]
+
+def _rm_repit_times_test(cons: list[struct_time], discs: list[struct_time]) -> list[list[str], list[str]]:
+    connects = []
+    disconnects = []
+    for con in cons:
+        if con not in connects:
+            connects.append(con)
+
+    for disc in discs:
+        if (disc not in disconnects) and (disc not in connects):
+            disconnects.append(disc)
+
+    return [list(map(lambda x: strftime("%H:%M %d.%m.%y", x), connects)), list(map(lambda x: strftime("%H:%M %d.%m.%y", x), disconnects))]
+
+def _test_unix(cons: list[struct_time], discs: list[struct_time]) -> list[list[float]]:
+    connects = []
+    disconnects = []
+    for con in cons:
+        connects.append(mktime(con))
+
+    for disc in discs:
+        disconnects.append(mktime(disc))
 
     return [connects, disconnects]
 
@@ -123,6 +149,43 @@ def _calculate_time(con: struct_time, disc: struct_time) -> float:
 def _to_human_form(date: struct_time):
     return strftime("%d.%m.%y", date)
 
+def _remove_all_replit_times(times: dict):
+    all_days = _get_all_days_on_dict(times)
+    all_cons = []
+    all_discons = []
+    for days in all_days:
+        connects_on_day = _get_date_of_day(
+            list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times['connects'])), days)
+        disconnects_on_day = _get_date_of_day(
+            list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times['discovers'])), days)
+
+        connects_on_day, disconnects_on_day = _rm_repit_times(
+            connects_on_day,
+            disconnects_on_day
+        )
+
+        all_cons.append(connects_on_day)
+        all_discons.append(disconnects_on_day)
+
+    return [all_cons, all_discons]
+
+def parse_time(time_str, date_str=None):
+  """
+  Функция для преобразования строки времени в объект datetime
+
+  Args:
+    time_str: Строка времени в формате "HH:MM"
+    date_str: Строка даты в формате "DD.MM.YY" (опционально)
+
+  Returns:
+    Объект datetime
+  """
+
+  hour, minute = time_str.split(":")
+  if date_str:
+    return datetime.datetime.strptime(f"{date_str} {time_str}", "%d.%m.%y %H:%M")
+  else:
+    return datetime.datetime.strptime(time_str, "%H:%M")
 
 def _analyze(times: dict):
     result = {}
@@ -299,8 +362,29 @@ class Getter:
             "mac3": {"date": "hours", "date2": "hours"},
         }
         '''
+        #print(parsed_log)
         to_ret = {}
         for mac, data in parsed_log.items():
-            to_ret[mac] = _analyze(data)
-            print(to_ret[mac])
-        return to_ret
+            to_ret[mac] = _remove_all_replit_times(data)
+        print(to_ret)
+        result = {}
+        for mac, times in to_ret.items():
+            result[mac] = {}
+            if times[0]:
+                start_time = parse_time(times[0][0])
+            else:
+                start_time = parse_time("08:30", date)
+
+        # Отключение
+            if times[1]:
+                end_time = parse_time(times[1][-1])
+            else:
+                end_time = parse_time("17:30", date)
+
+            # Расчет интервала
+            interval = (end_time - start_time).total_seconds() / 3600
+            result[mac][date] = interval
+            print(times)
+        # Подключение
+        print(result)
+        return result

@@ -50,7 +50,7 @@ class Book:
 
     def save(self, filename: str=...):
         try:
-            self._book.save(self._filename)
+            self._book.save(filename)
             self._book.close()
         except:
             pass
