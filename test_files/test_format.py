@@ -1,4 +1,4 @@
-from time import strptime, strftime, struct_time, mktime
+from time import strptime, strftime, struct_time, mktime, gmtime
 
 time = {'00:27:0e:12:46:7c': [[['17:05 29.01.24'],
       ['11:57 08.02.24', '15:27 08.02.24', '16:17 08.02.24'],
@@ -66,6 +66,9 @@ def _not_disconnected(date:str="%d.%m.%y") -> str:
 def _not_connected(date:str="%d.%m.%y") -> str:
     return strftime("%H:%M %d.%m.%y", strptime("8:00 "+date, "%H:%M %d.%m.%y"))
 
+def _to_str(data:float) -> str:
+    return strftime("%H:%M %d.%m.%y", gmtime(data))
+
 def _get_day(data:str) -> str:
     return data[-8:]
 
@@ -79,38 +82,93 @@ def _get_connects_and_disconnects_on_day(day:str, cons_discons:list[str]) -> lis
             result.append(cd)
     return result
 
-def _check_in_associated(already_associated:list[list[str]], data:str) -> bool:
-    for a in already_associated:
-        if data in a:
-            return True
-    return False
+def _get_index(lst:list, index:int):
+    try:
+        return lst[index]
+    except:
+        return 0
 
 def _comparison_con_and_discon_on_day(cons:list[str], discons:list[str]) -> tuple | list:
-    if len(cons) == len(discons):
-        return cons, discons
     if len(discons) == 0:
-        min = sorted(cons)[0]
-        print(min)
-        return min, _not_disconnected(_get_day(cons[0]))
+        min = sorted(map(_to_unix, cons))[0]
+        return [[_to_str(min), _not_disconnected(_get_day(cons[0]))]]
+    if len(cons) == 0:
+        max = sorted(map(_to_unix, discons))[-1]
+        return [[_not_connected(_get_day(cons[0])), _to_str(max)]]
     if len(cons) < len(discons):
         associated = []
-        for con in cons:
-            for disc in discons:
-                if len(associated) != 0:
-                    if associated[-1][0] != con:
-                        if _to_unix(associated[-1][-1]) < _to_unix(disc):
-                            associated.pop()
-                        else:
-                            continue
-                    else:
-                        break
-                if (_to_unix(disc) - _to_unix(con)) > 0:
-                    associated.append([con, disc])
-        return associated
-    if len(discons) < len(cons):
-        ...
+        already_associated = []
 
-if __name__ == "__main__":
-    cons = ['09:13 28.02.24', '12:20 28.02.24']
-    discons = ['10:11 28.02.24', '13:35 28.02.24', '14:20 28.02.24']
-    print(_comparison_con_and_discon_on_day(cons, discons))
+        for index in range(0, len(cons)):
+            for di_index in range(0, len(discons)):
+                if cons[index] in already_associated:
+                    if (_to_unix(already_associated[-1]) < _to_unix(discons[di_index])):
+                        if _get_index(cons, index+1):
+                            if _to_unix(already_associated[-1]) < _to_unix(discons[di_index]) < _to_unix(cons[index+1]):
+                                associated.pop()
+                                already_associated.pop()
+                                already_associated.pop()
+
+                                associated.append([cons[index], discons[di_index]])
+                                already_associated.append(cons[index])
+                                already_associated.append(discons[di_index])
+                            else:
+                                continue
+
+                        associated.pop()
+                        already_associated.pop()
+                        already_associated.pop()
+
+                        associated.append([cons[index], discons[di_index]])
+                        already_associated.append(cons[index])
+                        already_associated.append(discons[di_index])
+                else:
+                    if _to_unix(discons[di_index]) - _to_unix(cons[index]) > 0:
+                        associated.append([cons[index], discons[di_index]])
+                        already_associated.append(cons[index])
+                        already_associated.append(discons[di_index])
+
+        return associated
+    if len(discons) <= len(cons):
+        associated = []
+        already_associated = []
+
+        for index in range(0, len(cons)):
+            for di_index in range(0, len(discons)):
+                if cons[index] in already_associated:
+                    if (_to_unix(already_associated[-1]) < _to_unix(discons[di_index])):
+                        if _get_index(cons, index + 1):
+                            if _to_unix(already_associated[-1]) < _to_unix(discons[di_index]) < _to_unix(
+                                    cons[index + 1]):
+                                associated.pop()
+                                already_associated.pop()
+                                already_associated.pop()
+
+                                associated.append([cons[index], discons[di_index]])
+                                already_associated.append(cons[index])
+                                already_associated.append(discons[di_index])
+                                continue
+                            else:
+                                continue
+
+                        associated.pop()
+                        already_associated.pop()
+                        already_associated.pop()
+
+                        associated.append([cons[index], discons[di_index]])
+                        already_associated.append(cons[index])
+                        already_associated.append(discons[di_index])
+                else:
+                    if _to_unix(discons[di_index]) - _to_unix(cons[index]) > 0:
+                        if _get_index(already_associated, -2):
+                            if (_to_unix(already_associated[-2]) < _to_unix(cons[index])) and (_to_unix(already_associated[-1]) - _to_unix(cons[index]) > 0):
+                                continue
+                        associated.append([cons[index], discons[di_index]])
+                        already_associated.append(cons[index])
+                        already_associated.append(discons[di_index])
+
+        return associated
+
+
+def _analyze(data:dict) -> dict:
+    pass

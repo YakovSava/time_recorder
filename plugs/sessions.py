@@ -3,28 +3,15 @@ import datetime
 
 from os.path import exists
 from time import strptime, strftime, struct_time,\
-    mktime, gmtime, time
-from pprint import pprint
+    mktime
 
 
-def _sort_st(sts: list[struct_time]) -> struct_time:
+def _sort_st(sts: list[struct_time]):
     return sorted(sts, key=lambda x: mktime(x))
-
-
-def _get_minimal_st(sts: list[struct_time]) -> struct_time:
-    return _sort_st(sts)[-1]
-
-
-def _get_maximal_st(sts: list[struct_time]) -> struct_time:
-    return _sort_st(sts)[0]
 
 
 def _str_to_st(string: str) -> struct_time:
     return strptime(string, "%H:%M %d.%m.%y")
-
-
-def _liststr_to_listst(liststr: list[str]) -> list[struct_time]:
-    return list(map(_str_to_st, liststr))
 
 
 def _get_date_of_day(dates: list[struct_time], day: struct_time) -> list[struct_time]:
@@ -35,19 +22,6 @@ def _get_date_of_day(dates: list[struct_time], day: struct_time) -> list[struct_
             dates
         )
     )
-
-
-def _get_minimal_time_on_day(dates: list[struct_time], day: struct_time) -> struct_time:
-    return _get_minimal_st(
-        _get_date_of_day(dates, day)
-    )
-
-
-def _get_maximal_time_on_day(dates: list[struct_time], day: struct_time) -> struct_time:
-    return _get_maximal_st(
-        _get_date_of_day(dates, day)
-    )
-
 
 def _rm_repit_times(cons: list[struct_time], discs: list[struct_time]) -> list[list[struct_time], list[struct_time]]:
     connects = []
@@ -62,30 +36,6 @@ def _rm_repit_times(cons: list[struct_time], discs: list[struct_time]) -> list[l
 
     return [connects, disconnects]
 
-def _rm_repit_times_test(cons: list[struct_time], discs: list[struct_time]) -> list[list[str], list[str]]:
-    connects = []
-    disconnects = []
-    for con in cons:
-        if con not in connects:
-            connects.append(con)
-
-    for disc in discs:
-        if (disc not in disconnects) and (disc not in connects):
-            disconnects.append(disc)
-
-    return [list(map(lambda x: strftime("%H:%M %d.%m.%y", x), connects)), list(map(lambda x: strftime("%H:%M %d.%m.%y", x), disconnects))]
-
-def _test_unix(cons: list[struct_time], discs: list[struct_time]) -> list[list[float]]:
-    connects = []
-    disconnects = []
-    for con in cons:
-        connects.append(mktime(con))
-
-    for disc in discs:
-        disconnects.append(mktime(disc))
-
-    return [connects, disconnects]
-
 
 def _get_all_days(dates: list[struct_time]) -> list[str]:
     days = []
@@ -94,40 +44,6 @@ def _get_all_days(dates: list[struct_time]) -> list[str]:
         if day not in days:
             days.append(day)
     return days
-
-# def _get_all_days_from_dict(all_dates:list[dict]) -> list[str]:
-#   all_days = []
-#   for date in all_dates:
-#       for date1 in (_get_all_days(date['connects'])):
-#           if date1 not in all_days:
-#               all_days.append(date1)
-#       for date1 in (_get_all_days(date['discovers'])):
-#           if date1 not in all_days:
-#               all_days.append(date1)
-#   return all_days
-
-
-def _not_disconnected(con: struct_time, this: bool=False) -> float:
-    if this:
-        day_time = time() - mktime(con)
-    else:
-        day_time = mktime(
-            strptime(
-                "17:30 " + strftime("%d.%m.%y", con),
-                "%H:%M %d.%m.%y"
-            )
-        ) - mktime(con)
-    return abs(round(day_time / 3600, 2))
-
-
-def _not_connected(disc: struct_time) -> float:
-    day_time = mktime(disc) - mktime(
-        strptime(
-            "9:00 " + strftime("%d.%m.%y", disc),
-            "%H:%M %d.%m.%y"
-        )
-    )
-    return abs(round(day_time / 3600, 2))
 
 
 def _get_all_days_on_dict(times: dict) -> list[struct_time]:
@@ -140,11 +56,6 @@ def _get_all_days_on_dict(times: dict) -> list[struct_time]:
             if t not in time:
                 time.append(t)
     return list(map(lambda x: strptime(x, "%d.%m.%y"), time))
-
-
-def _calculate_time(con: struct_time, disc: struct_time) -> float:
-    return abs(round((mktime(disc) - mktime(con)) / 3600, 2))
-
 
 def _to_human_form(date: struct_time):
     return strftime("%d.%m.%y", date)
@@ -168,63 +79,6 @@ def _remove_all_replit_times(times: dict):
         all_discons.append(disconnects_on_day)
 
     return [all_cons, all_discons]
-
-def parse_time(time_str, date_str=None):
-  """
-  Функция для преобразования строки времени в объект datetime
-
-  Args:
-    time_str: Строка времени в формате "HH:MM"
-    date_str: Строка даты в формате "DD.MM.YY" (опционально)
-
-  Returns:
-    Объект datetime
-  """
-
-  hour, minute = time_str.split(":")
-  if date_str:
-    return datetime.datetime.strptime(f"{date_str} {time_str}", "%d.%m.%y %H:%M")
-  else:
-    return datetime.datetime.strptime(time_str, "%H:%M")
-
-def _analyze(times: dict):
-    result = {}
-
-    all_days = _get_all_days_on_dict(times)
-    for days in all_days:
-        connects_on_day = _get_date_of_day(
-            list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times['connects'])), days)
-        disconnects_on_day = _get_date_of_day(
-            list(map(lambda x: strptime(x, "%H:%M %d.%m.%y"), times['discovers'])), days)
-
-        connects_on_day, disconnects_on_day = _rm_repit_times(
-            connects_on_day,
-            disconnects_on_day
-        )
-
-        if len(disconnects_on_day) == 0:
-            if strftime("%d.%m.%y", days) == strftime("%d.%m.%y", gmtime()):
-                result[_to_human_form(days)] = _not_disconnected(
-                    _get_minimal_st(connects_on_day), this=True)
-                continue
-            if len(connects_on_day) != 0:
-                result[_to_human_form(days)] = _not_disconnected(
-                    _get_minimal_st(connects_on_day))
-            else:
-                result[_to_human_form(days)] = 0
-        elif len(connects_on_day) == 0:
-            if len(disconnects_on_day) != 0:
-                result[_to_human_form(days)] = _not_connected(
-                    _get_maximal_st(disconnects_on_day))
-            else:
-                result[_to_human_form(days)] = 0
-        else:
-            previously_connect = _get_minimal_st(connects_on_day)
-            latest_disconnect = _get_maximal_st(disconnects_on_day)
-
-            result[_to_human_form(days)] = _calculate_time(
-                previously_connect, latest_disconnect)
-    return result
 
 
 class Getter:
@@ -366,25 +220,4 @@ class Getter:
         to_ret = {}
         for mac, data in parsed_log.items():
             to_ret[mac] = _remove_all_replit_times(data)
-        print(to_ret)
-        result = {}
-        for mac, times in to_ret.items():
-            result[mac] = {}
-            if times[0]:
-                start_time = parse_time(times[0][0])
-            else:
-                start_time = parse_time("08:30", date)
-
-        # Отключение
-            if times[1]:
-                end_time = parse_time(times[1][-1])
-            else:
-                end_time = parse_time("17:30", date)
-
-            # Расчет интервала
-            interval = (end_time - start_time).total_seconds() / 3600
-            result[mac][date] = interval
-            print(times)
-        # Подключение
-        print(result)
-        return result
+        return to_ret
