@@ -1,4 +1,4 @@
-from time import strptime, strftime, struct_time, mktime, gmtime
+from time import strptime, strftime, mktime, gmtime
 
 time = {'00:27:0e:12:46:7c': [[['17:05 29.01.24'],
       ['11:57 08.02.24', '15:27 08.02.24', '16:17 08.02.24'],
@@ -88,13 +88,29 @@ def _get_index(lst:list, index:int):
     except:
         return 0
 
-def _comparison_con_and_discon_on_day(cons:list[str], discons:list[str]) -> tuple | list:
+def _get_day_force(data):
+    for item in data:
+        try:
+            return _get_day(item)
+        except:
+            pass
+    return False
+
+def _count_all_the_times_in_all_the_lists(obj:list | float) -> float:
+    if isinstance(obj, float):
+        return obj
+    res = 0.0
+    for con, dis in obj:
+        res += _to_unix(dis) - _to_unix(con)
+    return abs(round(res / 3600, 2))
+
+def _comparison_con_and_discon_on_day(cons:list[str], discons:list[str]) -> tuple | list | float:
     if len(discons) == 0:
         min = sorted(map(_to_unix, cons))[0]
         return [[_to_str(min), _not_disconnected(_get_day(cons[0]))]]
     if len(cons) == 0:
         max = sorted(map(_to_unix, discons))[-1]
-        return [[_not_connected(_get_day(cons[0])), _to_str(max)]]
+        return [[_not_connected(_get_day(discons[0])), _to_str(max)]]
     if len(cons) < len(discons):
         associated = []
         already_associated = []
@@ -170,5 +186,22 @@ def _comparison_con_and_discon_on_day(cons:list[str], discons:list[str]) -> tupl
         return associated
 
 
-def _analyze(data:dict) -> dict:
-    pass
+def _analyze(data:list) -> dict:
+    to_ret = {}
+
+    for connects, disconnects in zip(*data):
+        print(connects, disconnects)
+        to_ret[_get_day_force(connects) if _get_day_force(connects) else _get_day_force(disconnects)] = _count_all_the_times_in_all_the_lists(_comparison_con_and_discon_on_day(connects, disconnects))
+
+    return to_ret
+
+def _main_calculate_times(data:dict):
+    to_ret = {}
+
+    for mac, val in data.items():
+        to_ret[mac] = _analyze(val)
+
+    return to_ret
+
+if __name__ == '__main__':
+    print(_main_calculate_times(time))
