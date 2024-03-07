@@ -5,6 +5,7 @@ Dist
 setup.exe
 report.xlsx
 report1.xlsx
+report2.xlsx
 systemlog.log
 credentials.txt
 service_secrets.json

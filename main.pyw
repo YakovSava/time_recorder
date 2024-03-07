@@ -81,8 +81,6 @@ def load() -> None:
         parsed_ln = get.parse_file()
         calculated_info = get.calculate_times(parsed_ln)
         log.write('Завершено первичное преобразование')
-
-        print(calculated_info)
         filename = exc.save_xlsx(calculated_info)
         if not config['file_id']:
             log.write('ID файла не найдено. Начинается загрузка excel файла')

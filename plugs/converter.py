@@ -19,7 +19,7 @@ class Converter:
 
     def compare(self, macs: str=None) -> str:
         if not macs:
-            raise
+            return macs
         for _from, _to in self._load_list_compare()['compare']:
             macs = macs.replace(_from, _to)
         return macs

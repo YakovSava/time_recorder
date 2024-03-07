@@ -1,4 +1,5 @@
-from time import strptime, strftime, mktime, struct_time
+from time import strptime, strftime, mktime, struct_time, gmtime, time
+from typing import List
 
 times = [
     {'discovers': [], 'connects': []},
@@ -21,14 +22,14 @@ times = [
                                                    '12:39 01.12.23', '13:25 01.12.23', '13:22 22.11.23', '16:52 22.11.23']},
     {'discovers': ['14:03 01.12.23', '20:45 21.11.23', '15:17 27.11.23'], 'connects': [
         '14:03 01.12.23', '20:45 21.11.23', '20:45 21.11.23', '15:17 27.11.23']},
-    {'discovers': ['14:24 01.12.23'], 'connects': ['14:24 01.12.23']}
 ]
 
 # 9 часов 7 минут
 
 
-def _sort_st(sts: list[struct_time]) -> struct_time:
+def _sort_st(sts: list[struct_time]) -> list[struct_time]:
     return sorted(sts, key=lambda x: mktime(x))
+
 
 
 def _get_minimal_st(sts: list[struct_time]) -> struct_time:

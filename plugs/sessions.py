@@ -2,8 +2,11 @@ import re
 
 from os.path import exists
 from time import strptime, strftime, struct_time,\
-    mktime, gmtime
+    mktime, gmtime, time
 from pprint import pprint
+
+def _today(day:str) -> bool:
+    return strftime("%H:%M %d.%m.%y", gmtime(time())).endswith(day)
 
 def _to_str(data:float) -> str:
     return strftime("%H:%M %d.%m.%y", gmtime(data))
@@ -119,10 +122,12 @@ def _count_all_the_times_in_all_the_lists(obj:list | float) -> float:
         res += _to_unix(dis) - _to_unix(con)
     return abs(round(res / 3600, 2))
 
-def _comparison_con_and_discon_on_day(cons:list[str], discons:list[str]) -> tuple | list | float:
+def _comparison_con_and_discon_on_day(cons:list[str], discons:list[str]) -> tuple | list:
     if len(discons) == 0:
         min = sorted(map(_to_unix, cons))[0]
-        return [[_to_str(min), _not_disconnected(_get_day(cons[0]))]]
+        if _today(_get_day(_to_str(min))):
+            return [[_to_str(min), strftime("%H:%M %d.%m.%y", gmtime(time()))]]
+        return [[_to_str(min), _not_disconnected(_get_day(_to_str(min)))]]
     if len(cons) == 0:
         max = sorted(map(_to_unix, discons))[-1]
         return [[_not_connected(_get_day(discons[0])), _to_str(max)]]
@@ -158,7 +163,8 @@ def _comparison_con_and_discon_on_day(cons:list[str], discons:list[str]) -> tupl
                         associated.append([cons[index], discons[di_index]])
                         already_associated.append(cons[index])
                         already_associated.append(discons[di_index])
-
+        if _today(_get_day(associated[-1][-1])) and (time() < _to_unix(associated[-1][-1])):
+            associated[-1][-1] = _to_str(time())
         return associated
     if len(discons) <= len(cons):
         associated = []
@@ -239,6 +245,29 @@ class Getter:
         else:
             return False
 
+    def extract_mac_address(self, text: str) -> str:
+        """
+        Функция извлекает MAC-адрес из заданного текста.
+
+        Args:
+          text: Строка, содержащая MAC-адрес.
+
+        Returns:
+          Строка с MAC-адресом.
+        """
+        # Регулярное выражение для поиска MAC-адреса
+        pattern = r"(?:\(|\[)([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})(?:\)|\])"
+
+        # Поиск MAC-адреса в тексте
+        match = re.search(pattern, text)
+
+        # Возвращение MAC-адреса, если он был найден
+        if match:
+            return str(match.group(0))[1:-1]
+
+        # Возвращение пустой строки, если MAC-адрес не найден
+        return ""
+
     # def parse_string(self, string:str) -> dict:
     #     data = {}
     #     lines = string.splitlines()
@@ -294,27 +323,9 @@ class Getter:
                 raise
             else:
                 continue
-            splitted_line = line.split()
-            try:
-                time = strptime(
-                    " ".join(splitted_line[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
-                mac = splitted_line[-1][:-1]
-            except Exception as ex:
-                continue
-            if not self._is_mac_address(mac):
-                if "deauthenticated" in line:
-                    mac = self._get_STA(line)
-                    if not self._is_mac_address(mac):
-                        continue
-                    if data.get(mac) is None:
-                        data[mac] = {
-                            'discovers': [],
-                            'connects': []
-                        }
-                    data[mac]['discovers'].append(
-                        strftime("%H:%M %d.%m.%y", time))
-                else:
-                    continue
+            time = strptime(
+                " ".join(line.split()[:3]) + strftime(' %Y'), "%b %d %H:%M:%S %Y")
+            mac = self.extract_mac_address(line)
 
             if data.get(mac) is None:
                 data[mac] = {
@@ -322,16 +333,20 @@ class Getter:
                     'connects': []
                 }
 
+            if 'associated' in line:
+                data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
+            elif 'deauthenticated' in line:
+                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+
             # print(
             #     "DHCPREQUEST" in line, line, "\n",
             #     "DHCPDISCOVER" in line, line, "\n",
             #     "deauthenticated" in line, line, "\n"
             # )
-
-            if "DHCPREQUEST" in line:
-                data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
-            elif "DHCPDISCOVER" in line:
-                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+            # if "DHCPREQUEST" in line:
+            #     data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
+            # elif "DHCPDISCOVER" in line:
+            #     data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
             else:
                 continue
         return data
