@@ -10,6 +10,8 @@ def write(filename, msg):
         file.write(msg + '\n')
 
 
+# Please, do not use!
+# This class will no longer be used
 class SimpleSyslogServer:
 
     def __init__(self, filename: str=None, ip: str=None):
