@@ -90,16 +90,6 @@ def _not_connected(date:str="%d.%m.%y") -> str:
 def _get_day(data:str) -> str:
     return data[-8:]
 
-def _str_to_unix(strs:list[str]) -> list[float]:
-    return list(map(_to_unix, strs))
-
-def _get_connects_and_disconnects_on_day(day:str, cons_discons:list[str]) -> list[str]:
-    result = []
-    for cd in cons_discons:
-        if cd.endswith(day):
-            result.append(cd)
-    return result
-
 def _get_index(lst:list, index:int):
     try:
         return lst[index]

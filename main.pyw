@@ -17,14 +17,14 @@ log.write('Дескриптор логгера запущен')
 
 #syslog = SimpleSyslogServer(filename=config['log_name'], ip=config['ip']) # Not used!
 log.write('Запуск дескриптора Google Drive')
-#gdr = GDrive(service=True)
-gdr = GDriveTest()
+gdr = GDrive(service=True)
+#gdr = GDriveTest()
 log.write('Запуск дескриптора Excel')
 exc = Book(filename=config['excel_file'], cmp=convert)
 log.write('Запуск дескриптора получения логов')
 get = Getter(filename=config['log_name'])
 log.write('Запуск SSH дескриптора')
-#ssh = SSHLogger()
+ssh = SSHLogger()
 
 def _repl_log(conf):
     log.write('Запуск функции преобразования логов')
