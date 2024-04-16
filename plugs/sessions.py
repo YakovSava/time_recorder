@@ -324,9 +324,9 @@ class Getter:
                 }
 
             if 'associated' in line:
-                data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", time))
+                data[mac]['connects'].append(strftime("%H:%M %d.%m.%y", gmtime(mktime(time)-(5*3600))))
             elif 'deauthenticated' in line:
-                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", time))
+                data[mac]['discovers'].append(strftime("%H:%M %d.%m.%y", gmtime(mktime(time)-(5*3600))))
 
             # print(
             #     "DHCPREQUEST" in line, line, "\n",
