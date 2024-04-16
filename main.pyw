@@ -37,6 +37,9 @@ def _repl_log(conf):
             fixed.append(part)
         else:
             fixed[-1] += ' '+part
+    for i in range(len(fixed)):
+        if not (('associated' in fixed[i]) or ('deauthenticated' in fixed[i])):
+            fixed.pop(i)
     with open(conf['log_name'], 'w', encoding='utf-8') as file:
         file.write('\n'.join(fixed))
     log.write('Функция преобразования завершила работу')
