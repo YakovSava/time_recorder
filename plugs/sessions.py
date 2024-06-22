@@ -2,8 +2,14 @@ import re
 
 from os.path import exists
 from time import strptime, strftime, struct_time,\
-    mktime, gmtime, time
-from pprint import pprint
+    mktime as old_mktime, gmtime as old_gmtime, time
+from asyncio import gather, create_task
+
+def gmtime(data:float) -> struct_time:
+    return old_gmtime(data)
+
+def mktime(data:struct_time) -> float:
+    return old_mktime(data)+(2*3600)
 
 def _today(day:str) -> bool:
     return strftime("%H:%M %d.%m.%y", gmtime(time())).endswith(day)
@@ -355,7 +361,7 @@ class Getter:
             prepare[mac] = _remove_all_replit_times(data)
         to_ret = {}
 
-        pprint(prepare)
+        #pprint(prepare)
 
         for mac, val in prepare.items():
             to_ret[mac] = _analyze(val)
